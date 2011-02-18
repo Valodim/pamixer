@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from lib_pulseaudio import *
-import gobject
 import sys 
 import os
 import ctypes
@@ -29,7 +28,7 @@ def null_cb(a=None, b=None, c=None, d=None):
 
 class PulseAudio():
     def __init__(self, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_output_cb, remove_pa_output, volume_change_cb, volume_meter_cb):
-        
+
         self.sinks = {}
         self.monitor_sinks = []
         self.module_stream_restore_argument = ""
@@ -45,8 +44,8 @@ class PulseAudio():
 
         self.pa_mainloop = pa_threaded_mainloop_new()
         self.pa_mainloop_api = pa_threaded_mainloop_get_api(self.pa_mainloop)
-        
-        self._context = pa_context_new(self.pa_mainloop_api, "ear-candy")
+
+        self._context = pa_context_new(self.pa_mainloop_api, "parcur client")
         self._context_notify_cb = pa_context_notify_cb_t(self.context_notify_cb)
         pa_context_set_state_callback(self._context, self._context_notify_cb, None)
         pa_context_connect(self._context, None, 0, None);
@@ -58,13 +57,12 @@ class PulseAudio():
 
     # pulseaudio connection status    
     def context_notify_cb(self, context, userdata):
-        
+
         try:
             ctc = pa_context_get_state(context)
             if ctc == PA_CONTEXT_READY:
-                print
-                print "== pulseaudio server =="
-                print "pulseaudio connection ready..."
+                self.__print("== pulseaudio server ==")
+                self.__print("pulseaudio connection ready...")
 
                 self._null_cb = pa_context_success_cb_t(null_cb)
                 self._pa_context_success_cb = pa_context_success_cb_t(self.pa_context_success_cb)
@@ -87,7 +85,7 @@ class PulseAudio():
 
                 o = pa_context_get_client_info_list(self._context, self._pa_client_info_list_cb, None)
                 pa_operation_unref(o)
-                
+
                 o = pa_context_get_source_output_info_list(self._context, self._pa_source_output_info_cb, None)
                 pa_operation_unref(o)
 
@@ -106,7 +104,7 @@ class PulseAudio():
                                                 PA_SUBSCRIPTION_MASK_CLIENT|
                                                 PA_SUBSCRIPTION_MASK_SERVER), self._null_cb, None)  
 
-                pa_operation_unref(o)             
+                pa_operation_unref(o)
 
             if ctc == PA_CONTEXT_FAILED :
                 print
@@ -114,7 +112,7 @@ class PulseAudio():
                 print "connection failed"
                 pa_threaded_mainloop_signal(self.pa_mainloop, 0)
                 sys.exit(1)
-                
+
             if ctc == PA_CONTEXT_TERMINATED:
                 print
                 print "== pulseaudio server =="
@@ -123,6 +121,7 @@ class PulseAudio():
 
         except Exception, text:
             print "ERROR context_notify_cb %s" % text
+            raise Exception
 
 
     def pa_context_index_cb(self, context, index, user_data):
@@ -133,10 +132,10 @@ class PulseAudio():
         print "Reloading module-stream-restore " 
         pa_context_load_module(self._context, "module-stream-restore", self.module_stream_restore_argument, self._pa_context_index_cb, None)
 
- 
+
     def pa_module_info_cb(self, context, pa_module_info, eol, user_data):
         if user_data and pa_module_info:
-                      
+
             """if pa_module_info.contents.name == "module-stream-restore":
                 print
                 print "Found 'module-stream-restore'... unloading.."  
@@ -148,27 +147,11 @@ class PulseAudio():
         if eol: return
 
         if struct:
-            
+
             if  struct.contents.monitor_of_sink_name:
-                print 
-                print "== new output device found =="
-                print struct.contents.name
-                print struct.contents.description
-                """print struct.contents.monitor_of_sink_name
-                print struct.contents.driver
-                print struct.contents.sample_spec
-                print struct.contents.channel_map
-                print struct.contents.owner_module
-                print struct.contents.volume
-                print struct.contents.mute
-                print struct.contents.monitor_of_sink
-                print struct.contents.monitor_of_sink_name
-                print struct.contents.flags
-                print struct.contents.index"""
-                
-                gobject.idle_add(self.new_output_cb, struct.contents.index, struct.contents.monitor_of_sink_name, struct.contents.description, user_data)
+                self.new_output_cb(struct.contents.index, struct.contents.monitor_of_sink_name, struct.contents.description, user_data)
                 volume = int(pa_cvolume_avg(struct.contents.volume) / PA_VOLUME_CONVERSION_FACTOR)
-                gobject.idle_add(self.volume_change_cb, volume)
+                self.volume_change_cb(volume)
 
     def pa_stream_request_cb(self, stream, length, index):
 
@@ -184,10 +167,10 @@ class PulseAudio():
             v = 100
         pa_stream_drop(stream)
 
-        gobject.idle_add(self.volume_meter_cb, index, v)
-    
+        self.volume_meter_cb(index, v)
+
     def pa_create_monitor_stream_for_sink_input(self, index, monitor_index, name):
-        
+
         if not index in self.monitor_sinks:
             self.monitor_sinks.append(index)
             # Create new stream
@@ -196,7 +179,7 @@ class PulseAudio():
             ss.format = 5
             ss.rate = 25
             pa_stream = pa_stream_new(self._context, "Peak detect - " + name, ss, None)
-            
+
             pa_stream_set_monitor_stream(pa_stream, index);
             pa_stream_set_read_callback(pa_stream, self._pa_stream_request_cb, index);
             pa_stream_set_suspended_callback(pa_stream, self._pa_stream_notify_cb, None);
@@ -209,34 +192,34 @@ class PulseAudio():
             attr.minreq = 0
 
             pa_stream_connect_record(pa_stream, str(monitor_index), attr, 10752) 
-                    
+
     def pa_context_success_cb(self, context, c_int,  user_data):
         return
 
     def pa_source_output_info_cb(self, context, struct, c_int, user_data):
         return
-        
+
     def pa_context_subscribe_cb(self, context, event_type, index, user_data):
 
         try:
             et = event_type & PA_SUBSCRIPTION_EVENT_FACILITY_MASK
 
             if et == PA_SUBSCRIPTION_EVENT_CLIENT:
-            
+
                 if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
-                    gobject.idle_add(self.remove_client_cb, int(index))
+                    self.remove_client_cb(int(index))
                 else:
                     o = pa_context_get_client_info(self._context, index, self._pa_client_info_list_cb, None)
                     pa_operation_unref(o)
 
             if et == PA_SUBSCRIPTION_EVENT_SINK_INPUT:
                 if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
-                     gobject.idle_add(self.remove_sink_cb, int(index))
+                     self.remove_sink_cb(int(index))
                      self.monitor_sinks.remove(index)
                 else:
                     o = pa_context_get_sink_input_info(self._context, int(index), self._pa_sink_input_info_list_cb, True)
                     pa_operation_unref(o)
-                    
+
             if et == PA_SUBSCRIPTION_EVENT_SOURCE:
                 if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
                     # Remove output source
@@ -247,7 +230,8 @@ class PulseAudio():
 
         except Exception, text:
             print "pa :: ERROR pa_context_subscribe_cb %s" % text
-    
+            raise Exception
+
     def pa_client_info_cb(self, context, struct, c_int, user_data):
         try:
             if struct :
@@ -259,14 +243,15 @@ class PulseAudio():
                 pid = pa_proplist_gets(struct.contents.proplist, "application.process.id")
                 #binary = pa_proplist_gets(struct.contents.proplist, "application.process.binary")
 
-                gobject.idle_add(self.new_client_cb, struct.contents.index, struct.contents.name, pid, pa_proplist_to_string(struct.contents.proplist))
-                
+                self.new_client_cb(struct.contents.index, struct.contents.name, pid, pa_proplist_to_string(struct.contents.proplist))
+
         except Exception, text:
             self.__print( "pa :: ERROR pa_client_info_cb %s" % text)    
+            raise Exception
 
     def pa_sink_input_info_cb(self, context, struct, index, user_data):
         if struct and user_data:
-            
+
             # TODO: Only do this if app dosnt release pulse streams correctly
             if float(struct.contents.sink) in self.sinks:
                 self.pa_create_monitor_stream_for_sink_input(int(struct.contents.index), self.sinks[float(struct.contents.sink)], struct.contents.name)
@@ -274,14 +259,14 @@ class PulseAudio():
             # here we go...
             self.__print( "SINK INPUT INFO")
             self.__print( pa_proplist_to_string(struct.contents.proplist))
-            
+
             # Get volume level
             volume = []
             volume.append( int(pa_cvolume_avg(struct.contents.volume) / PA_VOLUME_CONVERSION_FACTOR) )
             for i in range(0, struct.contents.volume.channels):
                 volume.append(int(struct.contents.volume.values[i]) / PA_VOLUME_CONVERSION_FACTOR)
-            
-            gobject.idle_add( self.new_sink_cb, int(struct.contents.index), struct.contents.name, int(struct.contents.client), volume, struct.contents.sink, struct.contents.channel_map.channels)
+
+            self.new_sink_cb(int(struct.contents.index), struct.contents.name, int(struct.contents.client), volume, struct.contents.sink, struct.contents.channel_map.channels)
 
     # Move a playing stream to a differnt output sink
     def move_sink(self, sink_index, output_name):
@@ -328,7 +313,7 @@ class PulseAudio():
             # Update sink to monitor links
             self.sinks[ float(struct.contents.index) ] = struct.contents.monitor_source
             self.__print("pa_sink_info_cb")
-            gobject.idle_add(self.volume_change_cb, int(pa_cvolume_avg(struct.contents.volume) / PA_VOLUME_CONVERSION_FACTOR))
+            self.volume_change_cb(int(pa_cvolume_avg(struct.contents.volume) / PA_VOLUME_CONVERSION_FACTOR))
 
     def pa_ext_stream_restore_delete( self, stream):
         names = (c_char_p * 1)()
@@ -336,9 +321,5 @@ class PulseAudio():
         pa_ext_stream_restore_delete(self._context, names, self._pa_context_success_cb, None)
 
     def __print(self, text):
-        #print text
+        # print text
         return
-
-if __name__ == '__main__':
-    c = PulseAudio()
-    
