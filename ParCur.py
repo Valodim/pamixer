@@ -62,7 +62,6 @@ class ParCur():
         self.pa_clients_by_id = {}  # clients by id
         self.pa_sinks = {}
         self.pa_outputs = {}
-        self.pa_output_descriptions = {}
         self.client_with_focus = None # client that has a focused window
         self.last_application = None
         self.primary_client = None # Client that gets foreground sound regardless of window focus
@@ -79,7 +78,7 @@ class ParCur():
         # tricky we want to delete all client settings and reload our default xml file
         self.pa.disconnect()
         self.init()
-        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_output, self.on_remove_pa_output, self.on_volume_change, self.pa_volume_meter)
+        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_new_pa_output, self.on_remove_pa_output, self.on_volume_change, self.pa_volume_meter)
         return
 
     def run(self, cur):
@@ -87,7 +86,7 @@ class ParCur():
         # self.cur = cur
 
         self.init()
-        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_output, self.on_remove_pa_output, self.on_volume_change, self.pa_volume_meter)
+        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_new_pa_output, self.on_remove_pa_output, self.on_volume_change, self.pa_volume_meter)
 
     def set_mute(self, mute):
         self.is_mute = mute
@@ -109,17 +108,16 @@ class ParCur():
         #print self.managed_output_name, level
 
     def on_remove_pa_output(self, index):
-        self.__print("removed pa output")
+        if self.pa_outputs.has_key(index):
+            self.__print("removed pa output", self.pa_outputs[index])
+            del self.pa_outputs[index]
 
-        del( self.pa_outputs[index] )
-        del( self.pa_output_descriptions[index] )
-
-    def on_new_pa_output(self, index, output_name, output_description, startup):
-        self.pa_outputs[index] = output_name
-        self.pa_output_descriptions[index] = output_description
-
-        if self.follow_new_outputs and (self.managed_output_name == "" or output_name.lower().count("usb") > 0):
-            self.move_all_sinks()
+    # add new output to ours
+    def on_new_pa_output(self, index, struct, startup):
+        if not self.pa_outputs.has_key(index):
+            output = Output(struct)
+            self.__print("new pa output", output)
+            self.pa_outputs[index] = output
 
     def move_all_sinks(self):
         if self.managed_output_name:
@@ -172,7 +170,12 @@ class ParCur():
             if self.cur:
                 self.cur.update()
 
-    def on_new_pa_sink(self, index, name, client_index, volume, sink_index, channels):
+    def on_new_pa_sink(self, index, struct):
+        pass
+    def on_remove_pa_sink(self, index, struct):
+        pass
+
+    def on_new_pa_sink_input(self, index, name, client_index, volume, sink_index, channels):
         # should never happen?
         if not self.pa_clients_by_id.has_key(client_index):
             return
@@ -191,7 +194,7 @@ class ParCur():
         if self.cur:
             self.cur.update()
 
-    def on_remove_pa_sink(self, index):
+    def on_remove_pa_sink_input(self, index):
         if self.pa_sinks.has_key(index):
             self.__print("remove sink input", index)
             client = self.pa_sinks[index].client

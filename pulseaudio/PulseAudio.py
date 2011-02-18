@@ -27,15 +27,15 @@ def null_cb(a=None, b=None, c=None, d=None):
     return
 
 class PulseAudio():
-    def __init__(self, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_output_cb, remove_pa_output, volume_change_cb, volume_meter_cb):
+    def __init__(self, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, new_output_cb, remove_pa_output, volume_change_cb, volume_meter_cb):
 
         self.sinks = {}
         self.monitor_sinks = []
         self.module_stream_restore_argument = ""
 
         self.new_client_cb = new_client_cb
-        self.new_sink_cb = new_sink_cb
-        self.remove_sink_cb = remove_sink_cb
+        self.new_sink_input_cb = new_sink_input_cb
+        self.remove_sink_input_cb = remove_sink_input_cb
         self.remove_client_cb = remove_client_cb
         self.new_output_cb = new_output_cb
         self.volume_change_cb = volume_change_cb
@@ -214,7 +214,7 @@ class PulseAudio():
 
             if et == PA_SUBSCRIPTION_EVENT_SINK_INPUT:
                 if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
-                     self.remove_sink_cb(int(index))
+                     self.remove_sink_input_cb(int(index))
                      self.monitor_sinks.remove(index)
                 else:
                     o = pa_context_get_sink_input_info(self._context, int(index), self._pa_sink_input_info_list_cb, True)
@@ -266,7 +266,7 @@ class PulseAudio():
             for i in range(0, struct.contents.volume.channels):
                 volume.append(int(struct.contents.volume.values[i]) / PA_VOLUME_CONVERSION_FACTOR)
 
-            self.new_sink_cb(int(struct.contents.index), struct.contents.name, int(struct.contents.client), volume, struct.contents.sink, struct.contents.channel_map.channels)
+            self.new_sink_input_cb(int(struct.contents.index), struct.contents.name, int(struct.contents.client), volume, struct.contents.sink, struct.contents.channel_map.channels)
 
     # Move a playing stream to a differnt output sink
     def move_sink(self, sink_index, output_name):
