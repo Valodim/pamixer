@@ -84,7 +84,7 @@ class ParCur():
 
     def run(self, cur):
 
-        self.cur = cur
+        # self.cur = cur
 
         self.init()
         self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_output, self.on_remove_pa_output, self.on_volume_change, self.pa_volume_meter)
@@ -145,12 +145,12 @@ class ParCur():
         if not self.pa_clients_by_id.has_key(index):
             self.__print("new sink client: ", "index:", index, "name:", name, "pid: ", int(pid))
 
-            client = Client(self, name, int(pid))
+            client = Client(self, self.clean_client_name(name), int(pid))
         else:
             client = self.pa_clients_by_id[index]
             client.pid = int(pid)
 
-            client.name = name
+            client.name = self.clean_client_name(name)
             self.__print("changed sink client: ", "index:", index, "name:", name, "pid: ", client.pid)
 
         # always set the index to the new client
@@ -186,7 +186,7 @@ class ParCur():
         else:
             self.__print("changed sink input:", index, name)
             self.pa_sinks[index].volume = volume
-            self.pa_sinks[index].name = name
+            self.pa_sinks[index].name = self.clean_client_name(name)
 
         if self.cur:
             self.cur.update()
@@ -223,7 +223,7 @@ class ParCur():
         name = name.strip()
         alsa_plugin = "ALSA plug-in ["
         if name.startswith(alsa_plugin):
-            name = name[len(alsa_plugin): -1]
+            name = name[len(alsa_plugin):-1]
         return name
 
     def exit(self):

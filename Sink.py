@@ -39,10 +39,10 @@ class Sink():
         step_volume = current_volume
         result = True
 
-        if current_volume < self.client.volume_target:      
+        if current_volume < self.client.volume_target:
             step_volume = current_volume + self.client.volume_step
             if not self.client.fade_volume: step_volume = self.client.volume_target
-        elif current_volume > self.client.volume_target: 
+        elif current_volume > self.client.volume_target:
             step_volume = current_volume - self.client.volume_step
             if not self.client.fade_volume: step_volume = self.client.volume_target
 
