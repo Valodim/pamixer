@@ -14,29 +14,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import math  
+import math
 import time
 import datetime
-class Sink():
+
+class SinkInput():
     def __init__(self, index, struct):
 
         self.index = index
         self.name = struct.name
+        self.client = struct.client
         self.volume = struct.volume
+        self.channels = struct.channel_map.channels
 
     """
-    ('name', c_char_p),
     ('index', c_uint32),
-    ('description', c_char_p),
+    ('name', c_char_p),
+    ('owner_module', c_uint32),
+    ('client', c_uint32),
+    ('sink', c_uint32),
     ('sample_spec', pa_sample_spec),
     ('channel_map', pa_channel_map),
-    ('owner_module', c_uint32),
     ('volume', pa_cvolume),
-    ('mute', c_int),
-    ('monitor_source', c_uint32),
-    ('monitor_source_name', c_char_p),
-    ('latency', pa_usec_t),
+    ('buffer_usec', pa_usec_t),
+    ('sink_usec', pa_usec_t),
+    ('resample_method', c_char_p),
     ('driver', c_char_p),
-    ('flags', pa_sink_flags_t),
+    ('mute', c_int),
     ("proplist",        POINTER(c_int)),
+    ('monitor_index', c_int),
     """

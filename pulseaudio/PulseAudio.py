@@ -27,7 +27,7 @@ def null_cb(a=None, b=None, c=None, d=None):
     return
 
 class PulseAudio():
-    def __init__(self, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, new_output_cb, remove_pa_output, volume_change_cb, volume_meter_cb):
+    def __init__(self, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, volume_change_cb, volume_meter_cb):
 
         self.sinks = {}
         self.monitor_sinks = []
@@ -37,9 +37,11 @@ class PulseAudio():
         self.new_sink_input_cb = new_sink_input_cb
         self.remove_sink_input_cb = remove_sink_input_cb
         self.remove_client_cb = remove_client_cb
-        self.new_output_cb = new_output_cb
+        self.new_sink_cb = new_sink_cb
+        self.remove_sink_cb = remove_sink_cb
+        # self.new_source_cb = new_source_cb
+        # self.remove_source_cb = remove_source_cb
         self.volume_change_cb = volume_change_cb
-        self.remove_pa_output = remove_pa_output
         self.volume_meter_cb = volume_meter_cb
 
         self.pa_mainloop = pa_threaded_mainloop_new()
@@ -144,6 +146,7 @@ class PulseAudio():
         return
 
     def pa_source_info_cb(self, context, struct, eol, user_data):
+        return
         if eol: return
 
         if struct:
@@ -212,6 +215,13 @@ class PulseAudio():
                     o = pa_context_get_client_info(self._context, index, self._pa_client_info_list_cb, None)
                     pa_operation_unref(o)
 
+            if et == PA_SUBSCRIPTION_EVENT_SINK:
+                if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
+                     self.remove_sink_cb(int(index))
+                else:
+                    o = pa_context_get_sink_info(self._context, int(index), self._pa_sink_input_info_list_cb, True)
+                    pa_operation_unref(o)
+
             if et == PA_SUBSCRIPTION_EVENT_SINK_INPUT:
                 if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
                      self.remove_sink_input_cb(int(index))
@@ -223,7 +233,8 @@ class PulseAudio():
             if et == PA_SUBSCRIPTION_EVENT_SOURCE:
                 if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
                     # Remove output source
-                    self.remove_pa_output( int(index) )
+                    # self.remove_pa_output( int(index) )
+                    pass
                 else:
                     o = pa_context_get_source_info_by_index(self._context, int(index), self._pa_source_info_cb, False)
                     pa_operation_unref(o)
@@ -253,20 +264,14 @@ class PulseAudio():
         if struct and user_data:
 
             # TODO: Only do this if app dosnt release pulse streams correctly
-            if float(struct.contents.sink) in self.sinks:
-                self.pa_create_monitor_stream_for_sink_input(int(struct.contents.index), self.sinks[float(struct.contents.sink)], struct.contents.name)
+            # if float(struct.contents.sink) in self.sinks:
+                # self.pa_create_monitor_stream_for_sink_input(int(struct.contents.index), self.sinks[float(struct.contents.sink)], struct.contents.name)
 
             # here we go...
             self.__print( "SINK INPUT INFO")
             self.__print( pa_proplist_to_string(struct.contents.proplist))
 
-            # Get volume level
-            volume = []
-            volume.append( int(pa_cvolume_avg(struct.contents.volume) / PA_VOLUME_CONVERSION_FACTOR) )
-            for i in range(0, struct.contents.volume.channels):
-                volume.append(int(struct.contents.volume.values[i]) / PA_VOLUME_CONVERSION_FACTOR)
-
-            self.new_sink_input_cb(int(struct.contents.index), struct.contents.name, int(struct.contents.client), volume, struct.contents.sink, struct.contents.channel_map.channels)
+            self.new_sink_input_cb(int(struct.contents.index), struct.contents)
 
     # Move a playing stream to a differnt output sink
     def move_sink(self, sink_index, output_name):
@@ -310,10 +315,10 @@ class PulseAudio():
         if struct:
             # Get volume level
 
-            # Update sink to monitor links
-            self.sinks[ float(struct.contents.index) ] = struct.contents.monitor_source
             self.__print("pa_sink_info_cb")
             self.volume_change_cb(int(pa_cvolume_avg(struct.contents.volume) / PA_VOLUME_CONVERSION_FACTOR))
+
+            self.new_sink_cb(int(struct.contents.index), struct.contents)
 
     def pa_ext_stream_restore_delete( self, stream):
         names = (c_char_p * 1)()

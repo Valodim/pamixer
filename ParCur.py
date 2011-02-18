@@ -31,17 +31,6 @@ from Client import Client
 from Sink import Sink
 from Curses import Curses
 
-def find_program_file(path):
-    """Finds a program file, for example, a png included with the program.
-    First looks for it in files/ under the parent directory of the parent directory
-    of ear_candy.py
-    Then looks for it in /usr/share/earcandy
-    Returns the path of the file"""
-    if os.path.exists(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "files",path)):
-        return os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "files",path)
-    else:
-        return os.path.join(sys.prefix, "share/earcandy", path)
-
 class ParCur():
 
     def __init__(self):
@@ -50,8 +39,6 @@ class ParCur():
         self.cur = None
         self.display = {"": "[ unknown ]", "phone" : "Phone (VoIP)", "video" : "Video Player", "music" : "Music Player", "event" : "Notification" }
         self.ignore = ["EsounD client (UNIX socket client)", "parcur client", "Native client (UNIX socket client)", "PulseAudio Volume Control"]
-        self.config_file = os.path.expanduser("~/.config/Ear Candy/settings.xml")     
-        self.default_config_file = find_program_file("settings.xml")
 
         pass
 
@@ -61,6 +48,7 @@ class ParCur():
         self.mute_phone = False
         self.pa_clients_by_id = {}  # clients by id
         self.pa_sinks = {}
+        self.pa_sink_inputs = {}
         self.pa_outputs = {}
         self.client_with_focus = None # client that has a focused window
         self.last_application = None
@@ -78,7 +66,7 @@ class ParCur():
         # tricky we want to delete all client settings and reload our default xml file
         self.pa.disconnect()
         self.init()
-        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_new_pa_output, self.on_remove_pa_output, self.on_volume_change, self.pa_volume_meter)
+        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change, self.pa_volume_meter)
         return
 
     def run(self, cur):
@@ -86,7 +74,7 @@ class ParCur():
         # self.cur = cur
 
         self.init()
-        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_new_pa_output, self.on_remove_pa_output, self.on_volume_change, self.pa_volume_meter)
+        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change, self.pa_volume_meter)
 
     def set_mute(self, mute):
         self.is_mute = mute
@@ -98,7 +86,7 @@ class ParCur():
     def __adjust_volumes(self):
 
         # Always update based on active sinks
-        for sink in self.pa_sinks.values():
+        for sink in self.pa_sink_inputs.values():
             if sink.set_volume():
                 # set pa volume
                 self.pa.set_sink_volume(sink.index, sink.volume, sink.channels)  
@@ -121,7 +109,7 @@ class ParCur():
 
     def move_all_sinks(self):
         if self.managed_output_name:
-            for sink in self.pa_sinks.values():
+            for sink in self.pa_sink_inputs.values():
                 if not sink.client.output:
                     self.pa.move_sink(sink.index, self.managed_output_name)
 
@@ -141,7 +129,7 @@ class ParCur():
         # Link all clients with same name into same object
 
         if not self.pa_clients_by_id.has_key(index):
-            self.__print("new sink client: ", "index:", index, "name:", name, "pid: ", int(pid))
+            self.__print("new client: ", "index:", index, "name:", name, "pid: ", int(pid))
 
             client = Client(self, self.clean_client_name(name), int(pid))
         else:
@@ -149,7 +137,7 @@ class ParCur():
             client.pid = int(pid)
 
             client.name = self.clean_client_name(name)
-            self.__print("changed sink client: ", "index:", index, "name:", name, "pid: ", client.pid)
+            self.__print("changed client: ", "index:", index, "name:", name, "pid: ", client.pid)
 
         # always set the index to the new client
         self.pa_clients_by_id[index] = client
@@ -162,7 +150,7 @@ class ParCur():
         if self.pa_clients_by_id.has_key(index):
             client = self.pa_clients_by_id[index]
 
-            self.__print("remove sink client", index, client.name)
+            self.__print("remove client", index, client.name)
 
             # remove from by ID list
             del self.pa_clients_by_id[index]
@@ -171,43 +159,42 @@ class ParCur():
                 self.cur.update()
 
     def on_new_pa_sink(self, index, struct):
-        pass
-    def on_remove_pa_sink(self, index, struct):
-        pass
-
-    def on_new_pa_sink_input(self, index, name, client_index, volume, sink_index, channels):
-        # should never happen?
-        if not self.pa_clients_by_id.has_key(client_index):
-            return
-
         if not self.pa_sinks.has_key(index):
-            client = self.pa_clients_by_id[client_index]
-            self.__print("new sink input:", index, name)
-            sink = Sink(index, name, volume, client, channels)
-            client.sinks[index] = sink
-            self.pa_sinks[index] = sink
+            self.__print("new sink:", index, struct.name)
+            # create new
+            self.pa_sinks[index] = Sink(index, struct)
         else:
-            self.__print("changed sink input:", index, name)
-            self.pa_sinks[index].volume = volume
-            self.pa_sinks[index].name = self.clean_client_name(name)
+            self.__print("changed sink:", index, struct.name)
+            # update old
+            self.pa_sinks[index].update(struct)
+
+    def on_remove_pa_sink(self, index):
+        self.__print("remove sink", index)
+        del self.pa_sinks[index]
+
+    def on_new_pa_sink_input(self, index, struct):
+        if not self.pa_sink_inputs.has_key(index):
+            self.__print("new sink input:", index, struct.name)
+            self.pa_sink_inputs[index] = Sink(index, struct)
+        else:
+            self.__print("changed sink input:", index, struct.name)
+            self.pa_sink_inputs[index].volume = volume
+            self.pa_sink_inputs[index].name = self.clean_client_name(name)
 
         if self.cur:
             self.cur.update()
 
     def on_remove_pa_sink_input(self, index):
-        if self.pa_sinks.has_key(index):
+        if self.pa_sink_inputs.has_key(index):
             self.__print("remove sink input", index)
-            client = self.pa_sinks[index].client
-
-            del(client.sinks[index])
-            del(self.pa_sinks[index])
+            del self.pa_sink_inputs[index]
 
             if self.cur:
                 self.cur.update()
 
     def pa_volume_meter(self, index, level):
-        if self.pa_sinks.has_key(index):
-            sink = self.pa_sinks[index]
+        if self.pa_sink_inputs.has_key(index):
+            sink = self.pa_sink_inputs[index]
             sink.volume_meter = level
             if(level > sink.client.volume_step): sink.volume_meter_last_non_zero = time.mktime(datetime.datetime.now().timetuple())
 
@@ -236,11 +223,11 @@ class ParCur():
 
     def reset_all_volumes(self, deleteFile=True):
         self.__print("Resetting all volume levels...")
-        for sink in self.pa_sinks.values():
+        for sink in self.pa_sink_inputs.values():
             self.pa.set_sink_volume(sink.index, [100, 100, 100], sink.channels)
 
     def __print(self, *args):
-        # print args
+        print args
         return
 
 if __name__ == '__main__':
@@ -249,9 +236,9 @@ if __name__ == '__main__':
     cur = Curses(par)
 
     par.run(cur)
-    cur.run()
+    # cur.run()
 
-    # while True:
-        # time.sleep(10)
+    while True:
+        time.sleep(10)
 
     # par.exit()
