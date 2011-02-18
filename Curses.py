@@ -12,7 +12,16 @@ class Curses():
         self.modes.append(self.mode_help)
         self.modes.append(self.mode_sinks)
 
+        self.mode_keys = []
+        self.mode_keys.append(self.mode_help_keys)
+        self.mode_keys.append(self.mode_sinks_keys)
+
         self.active_mode = 1
+        self.active_sink = 0
+
+        self.cursor = 0
+
+        self.sinkchars = "werty"
 
     def update(self):
         # don't do anything if we aren't active
@@ -37,15 +46,22 @@ class Curses():
 
     def mode_help(self, win):
         return
+    def mode_help_keys(self, event):
+        return
+
     def mode_sinks(self, win):
-        chars = "qwerty"
 
         win.move(0, 1)
         i = 0
         for sink in self.par.pa_sinks.values():
+            win.addstr(self.sinkchars[i], curses.A_BOLD)
+            win.addstr(": #" + str(sink.index) + " " + sink.name + " ")
             i += 1
-            win.addstr(chars[i], curses.A_BOLD)
-            win.addstr(":" + sink.name)
+
+        if len(self.par.pa_sinks) == 0:
+           return
+
+        self.par.pa_sinks[self.active_sink].draw(win.derwin(2, 0), self.par)
 
         return
 
@@ -65,13 +81,6 @@ class Curses():
 
                 # reserve width for this sink-input
                 width += 15
-
-                # gauge, one bar for each channel
-                gauge = window.derwin(22, sink.channels+2, 2, 6-(sink.channels/2))
-                for i in range(0, sink.channels+1):
-                    barheight = int(sink.volume[i] / 5)
-                    gauge.vline(21-barheight, i+1, curses.ACS_BLOCK, barheight)
-
                 window.move(25, 1)
                 window.addstr(sink.name[0:15])
 
@@ -90,9 +99,25 @@ class Curses():
         self.screen.refresh()
         return
 
+    def mode_sinks_keys(self, event):
+        # selectable items in this mode are volume at the left, and the sink inputs
+        return
+
+    def keyevent(self, event):
+
+        # sink range
+        for i in range(0, len(self.sinkchars)):
+            if event == ord(self.sinkchars[i]):
+                self.active_sink = i
+                self.update()
+                return True
+
+        # nothing here? ok, allow active mode to parse
+        return self.mode_keys[self.active_mode](event)
+
     def run(self):
 
-        self.screen = curses.initscr() 
+        self.screen = curses.initscr()
         # curses.start_color()
 
         curses.noecho()
@@ -100,15 +125,18 @@ class Curses():
         self.screen.keypad(1)
 
         self.update()
-        while True: 
+        while True:
             event = self.screen.getch()
             if event == -1:
                 self.update()
                 continue
 
+            if self.keyevent(event):
+                continue
+
             self.update()
             # end of program, just break out
-            if event == ord("q"): 
-                break 
+            if event == ord("q"):
+                break
 
         curses.endwin()

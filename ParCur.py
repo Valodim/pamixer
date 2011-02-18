@@ -29,6 +29,7 @@ from xml.dom.minidom import *
 from pulseaudio.PulseAudio import PulseAudio 
 from Client import Client
 from Sink import Sink
+from SinkInput import SinkInput
 from Curses import Curses
 
 class ParCur():
@@ -175,7 +176,7 @@ class ParCur():
     def on_new_pa_sink_input(self, index, struct):
         if not self.pa_sink_inputs.has_key(index):
             self.__print("new sink input:", index, struct.name)
-            self.pa_sink_inputs[index] = Sink(index, struct)
+            self.pa_sink_inputs[index] = SinkInput(index, struct)
         else:
             self.__print("changed sink input:", index, struct.name)
             self.pa_sink_inputs[index].volume = volume
@@ -215,6 +216,14 @@ class ParCur():
         if name.startswith(alsa_plugin):
             name = name[len(alsa_plugin):-1]
         return name
+
+    def get_sink_inputs_by_sink(self, index):
+        result = []
+        for input in self.pa_sink_inputs.values():
+            if input.sink == index:
+                result.append(input)
+        return result
+
 
     def exit(self):
         # Reset all volumes

@@ -14,15 +14,37 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import math  
-import time
-import datetime
+import curses 
+
 class Sink():
     def __init__(self, index, struct):
 
         self.index = index
         self.name = struct.name
-        self.volume = struct.volume
+        self.channels = struct.volume.channels
+
+        self.volume = []
+        for i in range(0, self.channels+1):
+            self.volume.append(struct.volume.values[i])
+
+    def draw(self, win, par):
+
+        # gauge, one bar for each channel
+        gauge = win.derwin(22, self.channels+2, 7, 8-(self.channels/2))
+        for i in range(0, self.channels+1):
+            barheight = int(self.volume[i] / 65535.0 * 20.0)
+            gauge.vline(21-barheight, i+1, curses.ACS_BLOCK, barheight)
+        gauge.border()
+
+        win.move(30, 6)
+        win.addstr("Volume")
+
+        inputs = par.get_sink_inputs_by_sink(self.index)
+        left = 20
+        for input in inputs:
+            input.draw(win.derwin(7, left), par)
+            left += 20
+
 
     """
     ('name', c_char_p),

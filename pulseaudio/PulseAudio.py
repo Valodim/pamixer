@@ -219,7 +219,7 @@ class PulseAudio():
                 if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
                      self.remove_sink_cb(int(index))
                 else:
-                    o = pa_context_get_sink_info(self._context, int(index), self._pa_sink_input_info_list_cb, True)
+                    o = pa_context_get_sink_info_by_index(self._context, int(index), self._pa_sink_info_cb, True)
                     pa_operation_unref(o)
 
             if et == PA_SUBSCRIPTION_EVENT_SINK_INPUT:
