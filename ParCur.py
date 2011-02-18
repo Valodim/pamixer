@@ -227,7 +227,7 @@ class ParCur():
             self.pa.set_sink_volume(sink.index, [100, 100, 100], sink.channels)
 
     def __print(self, *args):
-        print args
+        # print args
         return
 
 if __name__ == '__main__':
@@ -236,9 +236,9 @@ if __name__ == '__main__':
     cur = Curses(par)
 
     par.run(cur)
-    # cur.run()
+    cur.run()
 
-    while True:
-        time.sleep(10)
+    # while True:
+        # time.sleep(10)
 
     # par.exit()

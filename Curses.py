@@ -8,15 +8,49 @@ class Curses():
         self.counter = 0
         self.screen = None
 
+        self.modes = []
+        self.modes.append(self.mode_help)
+        self.modes.append(self.mode_sinks)
+
+        self.active_mode = 1
+
     def update(self):
         # don't do anything if we aren't active
         if not self.screen:
             return
 
+        maxy, maxx = self.screen.getmaxyx()
+
+        self.screen.attrset(0)
+
         self.screen.clear()
-        self.screen.move(2, 3)
-        self.screen.addstr("ParCur\n\n")
+        self.screen.move(0, 1)
+        self.screen.addstr("1", curses.A_BOLD)# | (curses.COLOR_GREEN if self.active_mode == 1 else 0))
+        self.screen.addstr(":Help  ")
+        self.screen.addstr("2", curses.A_BOLD)
+        self.screen.addstr(":Sinks")
+        self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
+
+        self.modes[self.active_mode](self.screen.subwin(2,0))
+
+        return
+
+    def mode_help(self, win):
+        return
+    def mode_sinks(self, win):
+        chars = "qwerty"
+
+        win.move(0, 1)
+        i = 0
+        for sink in self.par.pa_sinks.values():
+            i += 1
+            win.addstr(chars[i], curses.A_BOLD)
+            win.addstr(":" + sink.name)
+
+        return
+
         left = 5
+
         for client in self.par.pa_clients_by_id.values():
             if len(client.sinks) == 0:
                 continue
@@ -59,6 +93,7 @@ class Curses():
     def run(self):
 
         self.screen = curses.initscr() 
+        # curses.start_color()
 
         curses.noecho()
         curses.curs_set(0)
