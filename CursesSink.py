@@ -43,7 +43,7 @@ class CursesSink():
             if event == curses.KEY_LEFT or event == curses.KEY_RIGHT:
                 self.cursor += -1 if event == curses.KEY_LEFT else +1
 
-                sink_inputs = self.par.get_sink_inputs_by_sink(self.index)
+                sink_inputs = self.par.get_sink_inputs_by_sink(self.active_sink)
 
                 # special case: no sink inputs at all
                 if len(sink_inputs) == 0 or self.cursor < -1:
@@ -67,9 +67,9 @@ class CursesSink():
             for i in range(0, len(self.sinkchars)):
                 if event == ord(self.sinkchars[i]) and self.par.pa_sinks.has_key(i):
                     # get the sink inputs of current sink
-                    sink_inputs = self.par.get_sink_inputs_by_sink(i)
+                    sink_inputs = self.par.get_sink_inputs_by_sink(self.active_sink)
                     # move the selected sink input to the new sink
-                    par.move_sink_input(sink_inputs[self.cursor].index, self.par.pa_sinks[i].index)
+                    self.par.move_sink_input(sink_inputs[self.cursor].index, self.par.pa_sinks[i].index)
                     return True
 
             self.mode = MODE_NORMAL
