@@ -15,36 +15,46 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import curses 
+from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR
 
 class Sink():
     def __init__(self, index, struct):
 
         self.index = index
+        self.update(struct)
+
+    def update(self, struct):
         self.name = struct.name
         self.channels = struct.volume.channels
 
         self.volume = []
         for i in range(0, self.channels+1):
-            self.volume.append(struct.volume.values[i])
+            self.volume.append(int(struct.volume.values[i] / PA_VOLUME_CONVERSION_FACTOR))
 
-    def draw(self, win, par):
+    def draw(self, win, par, cursor):
 
         # gauge, one bar for each channel
         gauge = win.derwin(22, self.channels+2, 7, 8-(self.channels/2))
         for i in range(0, self.channels+1):
-            barheight = int(self.volume[i] / 65535.0 * 20.0)
+            barheight = int(self.volume[i] * 0.2)
             gauge.vline(21-barheight, i+1, curses.ACS_BLOCK, barheight)
         gauge.border()
 
         win.move(30, 6)
-        win.addstr("Volume")
+        win.addstr("Volume", curses.A_BOLD if cursor == -1 else 0)
 
         inputs = par.get_sink_inputs_by_sink(self.index)
-        left = 20
+        i = 0
         for input in inputs:
-            input.draw(win.derwin(7, left), par)
-            left += 20
+            input.draw(win.derwin(7, 20 + i*20), par, cursor == i)
+            i += 1
 
+    def changeVolume(self, par, cursor, up):
+        if cursor == -1:
+            volume = []
+            for i in range(0, self.channels+1):
+                volume.append(PA_VOLUME_CONVERSION_FACTOR * max(0, min(100, self.volume[i] + (+1 if up else -1) * 5)))
+            par.pa.set_sink_volume(self.index, volume, self.channels)
 
     """
     ('name', c_char_p),

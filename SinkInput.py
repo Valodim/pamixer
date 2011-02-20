@@ -15,11 +15,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import curses 
+from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR
 
 class SinkInput():
     def __init__(self, index, struct):
 
         self.index = index
+        self.update(struct)
+
+    def update(self, struct):
         self.name = struct.name
         self.client = struct.client
         self.sink = struct.sink
@@ -27,19 +31,19 @@ class SinkInput():
         self.channels = struct.volume.channels
         self.volume = []
         for i in range(0, self.channels+1):
-            self.volume.append(struct.volume.values[i])
+            self.volume.append(int(struct.volume.values[i] / PA_VOLUME_CONVERSION_FACTOR))
 
-    def draw(self, win, par):
+    def draw(self, win, par, active):
 
         # gauge, one bar for each channel
         gauge = win.derwin(22, self.channels+2, 0, 8-(self.channels/2))
         for i in range(0, self.channels+1):
-            barheight = int(self.volume[i] / 65535.0 * 20.0)
+            barheight = int(self.volume[i] * 0.2)
             gauge.vline(21-barheight, i+1, curses.ACS_BLOCK, barheight)
         gauge.border()
 
         win.move(23, 3)
-        win.addstr(self.name)
+        win.addstr(self.name, curses.A_BOLD if active else 0)
 
 
     """
