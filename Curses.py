@@ -37,7 +37,8 @@ class Curses():
     def run(self):
 
         self.screen = curses.initscr()
-        # curses.start_color()
+        curses.start_color()
+        curses.use_default_colors()
 
         curses.noecho()
         curses.curs_set(0)
