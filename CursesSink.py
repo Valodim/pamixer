@@ -34,12 +34,22 @@ class CursesSink():
 
         win.move(0, 1)
         i = 0
+
+        inputcount = { }
+        for input in par.pa_sink_inputs.values():
+            if input.sink in inputcount:
+                inputcount[input.sink] += 1
+            else:
+                inputcount[input.sink] = 1
+
         # print the available sinks
         for sink in par.pa_sinks.values():
             if i > 0:
                 win.addstr(" | ")
             win.addstr(self.sinkchars[i] + ": ")
             win.addstr(sink.name, curses.A_BOLD if i == self.active_sink else 0)
+            if sink.index in inputcount and inputcount[sink.index] > 0:
+                win.addstr(" (" + str(inputcount[sink.index]) + ")")
             i += 1
 
         # print the active sink
