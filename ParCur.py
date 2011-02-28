@@ -25,7 +25,6 @@ import sys
 import shutil
 from xml.dom.minidom import *
 
-from singletonmixin import Singleton
 from pulseaudio.PulseAudio import PulseAudio 
 
 class ParCur():
