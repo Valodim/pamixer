@@ -19,20 +19,23 @@ import curses
 from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR
 
 class Sink():
-    def __init__(self, index, struct):
+    def __init__(self, index, struct, props):
 
         self.index = index
-        self.update(struct)
+        self.update(struct, props)
 
-    def update(self, struct):
+    def update(self, struct, props):
         self.name = struct.name
         self.channels = struct.volume.channels
+        self.driver = struct.driver
+        self.latency = struct.latency
+        self.props = props
 
         self.volume = []
         for i in range(0, self.channels+1):
             self.volume.append(int(struct.volume.values[i] / PA_VOLUME_CONVERSION_FACTOR))
 
-    def draw(self, win, cursor):
+    def draw_controls(self, win, cursor):
 
         # gauge, one bar for each channel
         gauge = win.derwin(22, self.channels+2, 7, 8-(self.channels/2))
@@ -49,6 +52,18 @@ class Sink():
         for input in inputs:
             input.draw(win.derwin(7, 20 + i*20), cursor == i)
             i += 1
+
+    def draw_info(self, win):
+        win.move(0, 2)
+        win.addstr(self.name + "\n")
+
+        win.addstr("\nDriver:\t\t" + self.driver)
+        if(self.driver == "module-alsa-sink.c") and 'alsa.card_name' in self.props:
+            win.addstr("\nCard Name:\t" + self.props['alsa.card_name'])
+        elif(self.driver == "module-tunnel.c"):
+            win.addstr("\nServer:\t\t" + self.props['tunnel.remote.server'])
+            win.addstr("\nRemote User:\t" + self.props['tunnel.remote.user'])
+            win.addstr("\nRemote Sink:\t" + self.props['tunnel.remote.description'])
 
     def changeVolume(self, cursor, up):
         if cursor == -1:

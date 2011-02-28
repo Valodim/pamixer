@@ -10,6 +10,8 @@ class CursesSink():
         self.active_sink = 0
         self.sinkchars = "werty"
 
+        self.show_data = True
+
         # -1 is volume, 0 and above are sink inputs
         self.cursor = -1
         # 0 = 
@@ -32,6 +34,7 @@ class CursesSink():
 
         win.move(0, 1)
         i = 0
+        # print the available sinks
         for sink in par.pa_sinks.values():
             if i > 0:
                 win.addstr(" | ")
@@ -39,10 +42,17 @@ class CursesSink():
             win.addstr(sink.name, curses.A_BOLD if i == self.active_sink else 0)
             i += 1
 
-        if len(par.pa_sinks) == 0:
-           return
+        # print the active sink
+        if len(par.pa_sinks) > 0:
+            # show some controls
+            par.pa_sinks[self.active_sink].draw_controls(win.derwin(2, 0), self.cursor)
 
-        par.pa_sinks[self.active_sink].draw(win.derwin(2, 0), self.cursor)
+            # and some statistics and data
+            if self.show_data:
+                maxy, maxx = win.getmaxyx()
+                win.hline(34, 0, curses.ACS_HLINE, maxx)
+                win = win.derwin(35, 0)
+                par.pa_sinks[self.active_sink].draw_info(win)
 
         return
 

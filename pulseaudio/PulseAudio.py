@@ -242,18 +242,25 @@ class PulseAudio():
             print "pa :: ERROR pa_context_subscribe_cb %s" % text
             raise Exception
 
+    def dict_from_proplist(self, proplist):
+        props = { }
+        for prop in pa_proplist_to_string(proplist).split("\n"):
+            left, _, right = prop.partition('=')
+            props[left.strip()] = right.strip()[1:-1]
+        return props
+
     def pa_client_info_cb(self, context, struct, c_int, user_data):
         try:
             if struct :
 
                 self.__print("CLIENT")
-                self.__print( pa_proplist_to_string(struct.contents.proplist))
+                # self.__print( pa_proplist_to_string(struct.contents.proplist))
 
                 # Get the client pid so we can match to the x11 window application pid
                 pid = pa_proplist_gets(struct.contents.proplist, "application.process.id")
                 #binary = pa_proplist_gets(struct.contents.proplist, "application.process.binary")
 
-                self.new_client_cb(struct.contents.index, struct.contents.name, pid, pa_proplist_to_string(struct.contents.proplist))
+                self.new_client_cb(struct.contents.index, struct.contents.name, pid, self.dict_from_proplist(struct.contents.proplist))
 
         except Exception, text:
             self.__print( "pa :: ERROR pa_client_info_cb %s" % text)    
@@ -326,7 +333,7 @@ class PulseAudio():
     def pa_sink_info_cb(self, context, struct, index, data):
         if struct:
             self.__print("pa_sink_info_cb")
-            self.new_sink_cb(int(struct.contents.index), struct.contents)
+            self.new_sink_cb(int(struct.contents.index), struct.contents, self.dict_from_proplist(struct.contents.proplist))
             # self.volume_change_cb(int(pa_cvolume_avg(struct.contents.volume) / PA_VOLUME_CONVERSION_FACTOR))
 
     def pa_ext_stream_restore_delete( self, stream):

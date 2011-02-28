@@ -112,15 +112,15 @@ class ParCur():
 
             self.update()
 
-    def on_new_pa_sink(self, index, struct):
+    def on_new_pa_sink(self, index, struct, props):
         if not self.pa_sinks.has_key(index):
             self.__print("new sink:", index, struct.name)
             # create new
-            self.pa_sinks[index] = Sink(index, struct)
+            self.pa_sinks[index] = Sink(index, struct, props)
         else:
             self.__print("changed sink:", index, struct.name)
             # update old
-            self.pa_sinks[index].update(struct)
+            self.pa_sinks[index].update(struct, props)
 
         self.update()
 
