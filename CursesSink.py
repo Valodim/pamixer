@@ -60,7 +60,9 @@ class CursesSink():
             # and some statistics and data
             if self.show_data:
                 maxy, maxx = win.getmaxyx()
+                win.attron(curses.color_pair(1))
                 win.hline(34, 0, curses.ACS_HLINE, maxx)
+                win.attroff(curses.color_pair(1))
                 win = win.derwin(35, 0)
                 par.pa_sinks[self.active_sink].draw_info(win)
 
