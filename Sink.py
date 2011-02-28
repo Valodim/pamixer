@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import curses 
+
 from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR
 
 class Sink():
@@ -31,7 +32,7 @@ class Sink():
         for i in range(0, self.channels+1):
             self.volume.append(int(struct.volume.values[i] / PA_VOLUME_CONVERSION_FACTOR))
 
-    def draw(self, win, par, cursor):
+    def draw(self, win, cursor):
 
         # gauge, one bar for each channel
         gauge = win.derwin(22, self.channels+2, 7, 8-(self.channels/2))
@@ -46,10 +47,10 @@ class Sink():
         inputs = par.get_sink_inputs_by_sink(self.index)
         i = 0
         for input in inputs:
-            input.draw(win.derwin(7, 20 + i*20), par, cursor == i)
+            input.draw(win.derwin(7, 20 + i*20), cursor == i)
             i += 1
 
-    def changeVolume(self, par, cursor, up):
+    def changeVolume(self, cursor, up):
         if cursor == -1:
             volume = []
             for i in range(0, self.channels+1):
@@ -72,3 +73,5 @@ class Sink():
     ('flags', pa_sink_flags_t),
     ("proplist",        POINTER(c_int)),
     """
+
+from ParCur import par

@@ -33,7 +33,7 @@ class SinkInput():
         for i in range(0, self.channels+1):
             self.volume.append(int(struct.volume.values[i] / PA_VOLUME_CONVERSION_FACTOR))
 
-    def draw(self, win, par, active):
+    def draw(self, win, active):
 
         # gauge, one bar for each channel
         gauge = win.derwin(22, self.channels+2, 0, 8-(self.channels/2))

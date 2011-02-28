@@ -5,8 +5,7 @@ MODE_MOVE = 1
 
 class CursesSink():
 
-    def __init__(self, par):
-        self.par = par
+    def __init__(self):
 
         self.active_sink = 0
         self.sinkchars = "werty"
@@ -17,19 +16,33 @@ class CursesSink():
         self.mode = MODE_NORMAL
         return
 
+    def cursorCheck(self):
+        """
+        Moves the cursor to the left until there is a sink input,
+        or it's at the sink's volume.
+        """
+        sink_inputs = par.get_sink_inputs_by_sink(self.active_sink)
+        while self.cursor >= len(sink_inputs):
+            self.cursor -= 1
+        if self.cursor < -1:
+            self.cursor = -1
+
     def draw(self, win):
+        self.cursorCheck()
 
         win.move(0, 1)
         i = 0
-        for sink in self.par.pa_sinks.values():
-            win.addstr(self.sinkchars[i], curses.A_BOLD)
-            win.addstr(": #" + str(sink.index) + " " + sink.name + " ")
+        for sink in par.pa_sinks.values():
+            if i > 0:
+                win.addstr(" | ")
+            win.addstr(self.sinkchars[i] + ": ")
+            win.addstr(sink.name, curses.A_BOLD if i == self.active_sink else 0)
             i += 1
 
-        if len(self.par.pa_sinks) == 0:
+        if len(par.pa_sinks) == 0:
            return
 
-        self.par.pa_sinks[self.active_sink].draw(win.derwin(2, 0), self.par, self.cursor)
+        par.pa_sinks[self.active_sink].draw(win.derwin(2, 0), self.cursor)
 
         return
 
@@ -38,41 +51,38 @@ class CursesSink():
 
             if self.cursor >= 0 and event == ord("m"):
                 self.mode = MODE_MOVE
+                return False
 
             # change focus
             if event == curses.KEY_LEFT or event == curses.KEY_RIGHT:
                 self.cursor += -1 if event == curses.KEY_LEFT else +1
-
-                sink_inputs = self.par.get_sink_inputs_by_sink(self.active_sink)
-
-                # special case: no sink inputs at all
-                if len(sink_inputs) == 0 or self.cursor < -1:
-                    self.cursor = -1
-                elif self.cursor >= len(sink_inputs):
-                    self.cursor = len(sink_inputs) -1
+                return False
 
             elif event == curses.KEY_UP or event == curses.KEY_DOWN:
-                self.par.pa_sinks[self.active_sink].changeVolume(self.par, self.cursor, event == curses.KEY_UP)
-                return True
+                par.pa_sinks[self.active_sink].changeVolume(self.cursor, event == curses.KEY_UP)
+                return False
 
             # sink range
             for i in range(0, len(self.sinkchars)):
-                if event == ord(self.sinkchars[i]) and self.par.pa_sinks.has_key(i):
+                if event == ord(self.sinkchars[i]) and par.pa_sinks.has_key(i):
                     self.active_sink = i
-                    return True
+                    self.cursorCheck()
+                    return False
 
         elif self.mode == MODE_MOVE:
 
             # sink range
             for i in range(0, len(self.sinkchars)):
-                if event == ord(self.sinkchars[i]) and self.par.pa_sinks.has_key(i):
+                if event == ord(self.sinkchars[i]) and par.pa_sinks.has_key(i):
                     # get the sink inputs of current sink
-                    sink_inputs = self.par.get_sink_inputs_by_sink(self.active_sink)
+                    sink_inputs = par.get_sink_inputs_by_sink(self.active_sink)
                     # move the selected sink input to the new sink
-                    self.par.move_sink_input(sink_inputs[self.cursor].index, self.par.pa_sinks[i].index)
-                    return True
+                    par.move_sink_input(sink_inputs[self.cursor].index, par.pa_sinks[i].index)
+                    self.mode = MODE_NORMAL
+                    return False
 
             self.mode = MODE_NORMAL
 
-        return
+        return False
 
+from ParCur import par

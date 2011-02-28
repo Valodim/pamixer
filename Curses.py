@@ -1,17 +1,13 @@
 import curses 
 import time
 
-from CursesSink import CursesSink
-from CursesHelp import CursesHelp
-
 class Curses():
 
-    def __init__(self, par):
-        self.par = par
+    def __init__(self):
         self.counter = 0
         self.screen = None
 
-        self.modes = [ CursesHelp(par), CursesSink(par) ]
+        self.modes = [ CursesHelp(), CursesSink() ]
 
         self.active_mode = 1
 
@@ -66,3 +62,7 @@ class Curses():
                 break
 
         curses.endwin()
+
+from CursesSink import CursesSink
+from CursesHelp import CursesHelp
+

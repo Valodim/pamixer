@@ -1,8 +1,7 @@
 import curses 
 
 class CursesHelp():
-    def __init__(self, par):
-        self.par = par
+    def __init__(self):
         return
 
     def draw(self, win):

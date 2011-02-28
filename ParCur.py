@@ -22,45 +22,25 @@ import re
 import os
 import copy
 import sys
-import time
 import shutil
 from xml.dom.minidom import *
 
+from singletonmixin import Singleton
 from pulseaudio.PulseAudio import PulseAudio 
-from Client import Client
-from Sink import Sink
-from SinkInput import SinkInput
-from Curses import Curses
 
 class ParCur():
 
     def __init__(self):
-        self.active = True
         self.cur = None
-        self.display = {"": "[ unknown ]", "phone" : "Phone (VoIP)", "video" : "Video Player", "music" : "Music Player", "event" : "Notification" }
-        self.ignore = ["EsounD client (UNIX socket client)", "parcur client", "Native client (UNIX socket client)", "PulseAudio Volume Control"]
-
-        pass
-
-    def init(self):
 
         self.pa_clients_by_id = {}  # clients by id
         self.pa_sinks = {}
         self.pa_sink_inputs = {}
         self.pa_outputs = {}
 
-    def reset_all(self):
-        # tricky we want to delete all client settings and reload our default xml file
-        self.pa.disconnect()
-        self.init()
-        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change)
-        return
-
     def run(self, cur):
-
         self.cur = cur
 
-        self.init()
         self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change)
 
     def set_mute(self, mute):
@@ -99,17 +79,6 @@ class ParCur():
             for sink in self.pa_sink_inputs.values():
                 if not sink.client.output:
                     self.pa.move_sink(sink.index, self.managed_output_name)
-
-    def move_client(self, client):
-        self.__print("move client", client.name)
-
-        for sink in client.sinks.values(): 
-            if client.output:
-                self.__print("move", sink.name, "to", sink.client.output)
-                self.pa.move_sink(sink.index, sink.client.output)
-            else:
-                self.__print("move", sink.name, "to", self.managed_output_name)
-                self.pa.move_sink(sink.index, self.managed_output_name)
 
     def on_new_pa_client(self, index, name, pid, proplist):
         if not pid: pid = -1
@@ -193,8 +162,18 @@ class ParCur():
         return result
 
     def move_sink_input(self, sink_input_index, sink_index):
-        print sink_input_index, sink_index
         self.pa.move_sink_input(sink_input_index, sink_index)
+
+    def move_client(self, client):
+        self.__print("move client", client.name)
+
+        for sink in client.sinks.values(): 
+            if client.output:
+                self.__print("move", sink.name, "to", sink.client.output)
+                self.pa.move_sink(sink.index, sink.client.output)
+            else:
+                self.__print("move", sink.name, "to", self.managed_output_name)
+                self.pa.move_sink(sink.index, self.managed_output_name)
 
     def exit(self):
         # Reset all volumes
@@ -207,24 +186,12 @@ class ParCur():
             self.cur.update()
 
     def __print(self, *args):
-        print args
+        # print args
         return
 
-def fakestart():
-    par = ParCur()
-    par.run(None)
+par = ParCur()
 
-    return par
-
-if __name__ == '__main__':
-
-    par = ParCur()
-    cur = Curses(par)
-
-    par.run(cur)
-    cur.run()
-
-    # while True:
-        # time.sleep(10)
-
-    # par.exit()
+from Curses import Curses
+from Client import Client
+from Sink import Sink
+from SinkInput import SinkInput
