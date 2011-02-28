@@ -16,7 +16,13 @@
 
 import curses 
 
-from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR
+from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR, PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
+from CursesHelpers import *
+
+state_names = { }
+state_names[PA_SINK_RUNNING] = "running"
+state_names[PA_SINK_SUSPENDED] = "suspended"
+state_names[PA_SINK_IDLE] = "idle"
 
 class Sink():
     def __init__(self, index, struct, props):
@@ -29,6 +35,8 @@ class Sink():
         self.channels = struct.volume.channels
         self.driver = struct.driver
         self.latency = struct.latency
+        self.mute = struct.mute
+        self.state = struct.state
         self.props = props
 
         self.volume = []
@@ -54,16 +62,29 @@ class Sink():
             i += 1
 
     def draw_info(self, win):
-        win.move(0, 2)
-        win.addstr(self.name + "\n")
+        maxy, maxx = win.getmaxyx()
+        win.attron(curses.color_pair(2))
+        win.hline(0, 0, curses.ACS_HLINE, maxx)
+        win.vline(0, 45, curses.ACS_VLINE, maxy)
+        win.addch(0, 45, curses.ACS_TTEE)
+        win.attroff(curses.color_pair(2))
 
-        win.addstr("\nDriver:\t\t" + self.driver)
+        wleft = win.derwin(10, 42, 1, 2)
+
+        wleft.move(0, 2)
+        wleft.addstr(center(self.name, 36) + "\n")
+
+        wleft.addstr("\nDriver:\t\t" + self.driver)
+        wleft.addstr("\nLatency:\t" + str(self.latency * 100))
+        wleft.addstr("\nState:\t\t" + state_names[self.state])
+
+        wright = win.derwin(1, 48)
         if(self.driver == "module-alsa-sink.c") and 'alsa.card_name' in self.props:
-            win.addstr("\nCard Name:\t" + self.props['alsa.card_name'])
+            wright.addstr("\nCard Name:\t" + self.props['alsa.card_name'])
         elif(self.driver == "module-tunnel.c"):
-            win.addstr("\nServer:\t\t" + self.props['tunnel.remote.server'])
-            win.addstr("\nRemote User:\t" + self.props['tunnel.remote.user'])
-            win.addstr("\nRemote Sink:\t" + self.props['tunnel.remote.description'])
+            wright.addstr("\nServer:\t\t" + self.props['tunnel.remote.server'])
+            wright.addstr("\nRemote User:\t" + self.props['tunnel.remote.user'])
+            wright.addstr("\nRemote Sink:\t" + self.props['tunnel.remote.description'])
 
     def changeVolume(self, cursor, up):
         if cursor == -1:
@@ -73,20 +94,28 @@ class Sink():
             par.pa.set_sink_volume(self.index, volume, self.channels)
 
     """
-    ('name', c_char_p),
-    ('index', c_uint32),
-    ('description', c_char_p),
+    ('name', STRING),
+    ('index', uint32_t),
+    ('description', STRING),
     ('sample_spec', pa_sample_spec),
     ('channel_map', pa_channel_map),
-    ('owner_module', c_uint32),
+    ('owner_module', uint32_t),
     ('volume', pa_cvolume),
     ('mute', c_int),
-    ('monitor_source', c_uint32),
-    ('monitor_source_name', c_char_p),
+    ('monitor_source', uint32_t),
+    ('monitor_source_name', STRING),
     ('latency', pa_usec_t),
-    ('driver', c_char_p),
+    ('driver', STRING),
     ('flags', pa_sink_flags_t),
-    ("proplist",        POINTER(c_int)),
+    ('proplist', POINTER(pa_proplist)),
+    ('configured_latency', pa_usec_t),
+    ('base_volume', pa_volume_t),
+    ('state', pa_sink_state_t),
+    ('n_volume_steps', uint32_t),
+    ('card', uint32_t),
+    ('n_ports', uint32_t),
+    ('ports', POINTER(POINTER(pa_sink_port_info))),
+    ('active_port', POINTER(pa_sink_port_info)),
     """
 
 from ParCur import par

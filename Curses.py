@@ -46,17 +46,20 @@ class Curses():
 
         maxy, maxx = self.screen.getmaxyx()
 
-        curses.init_pair(1, curses.COLOR_YELLOW, -1);
-        curses.init_pair(2, curses.COLOR_GREEN, -1);
+        curses.init_pair(1, -1, -1);
+        curses.init_pair(2, curses.COLOR_YELLOW, -1);
+        curses.init_pair(3, curses.COLOR_GREEN, -1);
+        curses.init_pair(4, curses.COLOR_CYAN, -1);
+        curses.init_pair(5, curses.COLOR_MAGENTA, -1);
 
         self.screen.move(0, 1)
         self.screen.addstr("1", curses.A_BOLD) # | (curses.COLOR_GREEN if self.active_mode == 1 else 0))
         self.screen.addstr(":Help  ")
         self.screen.addstr("2", curses.A_BOLD)
         self.screen.addstr(":Sinks")
-        self.screen.attron(curses.color_pair(1))
+        self.screen.attron(curses.color_pair(2))
         self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
-        self.screen.attroff(curses.color_pair(1))
+        self.screen.attroff(curses.color_pair(2))
 
         self.subscreen = self.screen.subwin(2, 0)
         self.screen.refresh()

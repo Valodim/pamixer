@@ -1,7 +1,15 @@
 import curses 
 
+from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR, PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
+
 MODE_NORMAL = 0
 MODE_MOVE = 1
+
+state_colors = { }
+state_colors[PA_SINK_RUNNING] = 3
+state_colors[PA_SINK_SUSPENDED] = 4
+state_colors[PA_SINK_IDLE] = 1
+
 
 class CursesSink():
 
@@ -47,9 +55,12 @@ class CursesSink():
             if i > 0:
                 win.addstr(" | ")
             win.addstr(self.sinkchars[i] + ": ")
-            win.addstr(sink.name, curses.A_BOLD if i == self.active_sink else 0)
+
+            win.addstr(sink.name, curses.color_pair(state_colors[sink.state]) | (curses.A_BOLD if i == self.active_sink else 0))
+
             if sink.index in inputcount and inputcount[sink.index] > 0:
-                win.addstr(" (" + str(inputcount[sink.index]) + ")")
+                win.addstr(" [" + str(inputcount[sink.index]) + "]")
+
             i += 1
 
         # print the active sink
@@ -59,12 +70,7 @@ class CursesSink():
 
             # and some statistics and data
             if self.show_data:
-                maxy, maxx = win.getmaxyx()
-                win.attron(curses.color_pair(1))
-                win.hline(34, 0, curses.ACS_HLINE, maxx)
-                win.attroff(curses.color_pair(1))
-                win = win.derwin(35, 0)
-                par.pa_sinks[self.active_sink].draw_info(win)
+                par.pa_sinks[self.active_sink].draw_info(win.derwin(34, 0))
 
         return
 
