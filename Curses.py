@@ -1,5 +1,6 @@
 import curses 
 import time
+import sys
 
 class Curses():
 
@@ -13,24 +14,20 @@ class Curses():
 
     def update(self):
         # don't do anything if we aren't active
-        if not self.screen:
+        if not self.subscreen:
             return
 
-        maxy, maxx = self.screen.getmaxyx()
+        self.subscreen.attrset(0)
+        self.subscreen.clear()
 
-        self.screen.attrset(0)
+        self.modes[self.active_mode].draw(self.subscreen)
 
-        self.screen.clear()
-        self.screen.move(0, 1)
-        self.screen.addstr("1", curses.A_BOLD)# | (curses.COLOR_GREEN if self.active_mode == 1 else 0))
-        self.screen.addstr(":Help  ")
-        self.screen.addstr("2", curses.A_BOLD)
-        self.screen.addstr(":Sinks")
-        self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
-
-        self.modes[self.active_mode].draw(self.screen.subwin(2,0))
+        self.refresh()
 
         return
+
+    def refresh(self):
+        self.subscreen.refresh()
 
     def keyevent(self, event):
 
@@ -45,6 +42,18 @@ class Curses():
         curses.noecho()
         curses.curs_set(0)
         self.screen.keypad(1)
+
+        maxy, maxx = self.screen.getmaxyx()
+
+        self.screen.move(0, 1)
+        self.screen.addstr("1", curses.A_BOLD)# | (curses.COLOR_GREEN if self.active_mode == 1 else 0))
+        self.screen.addstr(":Help  ")
+        self.screen.addstr("2", curses.A_BOLD)
+        self.screen.addstr(":Sinks")
+        self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
+
+        self.subscreen = self.screen.subwin(2, 0)
+        self.screen.refresh()
 
         self.update()
         while True:

@@ -17,6 +17,8 @@
 import curses 
 from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR
 
+from CursesHelpers import *
+
 class SinkInput():
     def __init__(self, index, struct):
 
@@ -42,24 +44,27 @@ class SinkInput():
             gauge.vline(21-barheight, i+1, curses.ACS_BLOCK, barheight)
         gauge.border()
 
-        win.move(23, 3)
-        win.addstr(self.name, curses.A_BOLD if active else 0)
+        win.move(23, 4)
+        win.addstr(center(par.pa_clients_by_id[self.client].name, 12))
+        win.move(24, 3)
+        win.addstr(center(self.name, 12), curses.A_BOLD if active else 0)
 
+from ParCur import par
 
-    """
-    ('index', c_uint32),
-    ('name', c_char_p),
-    ('owner_module', c_uint32),
-    ('client', c_uint32),
-    ('sink', c_uint32),
-    ('sample_spec', pa_sample_spec),
-    ('channel_map', pa_channel_map),
-    ('volume', pa_cvolume),
-    ('buffer_usec', pa_usec_t),
-    ('sink_usec', pa_usec_t),
-    ('resample_method', c_char_p),
-    ('driver', c_char_p),
-    ('mute', c_int),
-    ("proplist",        POINTER(c_int)),
-    ('monitor_index', c_int),
-    """
+"""
+('index', c_uint32),
+('name', c_char_p),
+('owner_module', c_uint32),
+('client', c_uint32),
+('sink', c_uint32),
+('sample_spec', pa_sample_spec),
+('channel_map', pa_channel_map),
+('volume', pa_cvolume),
+('buffer_usec', pa_usec_t),
+('sink_usec', pa_usec_t),
+('resample_method', c_char_p),
+('driver', c_char_p),
+('mute', c_int),
+("proplist",        POINTER(c_int)),
+('monitor_index', c_int),
+"""

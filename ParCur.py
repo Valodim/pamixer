@@ -181,6 +181,8 @@ class ParCur():
         sys.exit(0)
 
     def update(self):
+        print "\a"
+        sys.stdout.flush()
         # return
         if self.cur:
             self.cur.update()

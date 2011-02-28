@@ -41,7 +41,7 @@ class Sink():
             gauge.vline(21-barheight, i+1, curses.ACS_BLOCK, barheight)
         gauge.border()
 
-        win.move(30, 6)
+        win.move(29, 6)
         win.addstr("Volume", curses.A_BOLD if cursor == -1 else 0)
 
         inputs = par.get_sink_inputs_by_sink(self.index)
