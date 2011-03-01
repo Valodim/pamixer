@@ -27,12 +27,13 @@ def null_cb(a=None, b=None, c=None, d=None):
     return
 
 class PulseAudio():
-    def __init__(self, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, volume_change_cb):
+    def __init__(self, init_cb, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, volume_change_cb):
 
         self.sinks = {}
         self.monitor_sinks = []
         self.module_stream_restore_argument = ""
 
+        self.init_cb = init_cb
         self.new_client_cb = new_client_cb
         self.new_sink_input_cb = new_sink_input_cb
         self.remove_sink_input_cb = remove_sink_input_cb
@@ -106,6 +107,8 @@ class PulseAudio():
                                                 PA_SUBSCRIPTION_MASK_SERVER), self._null_cb, None)  
 
                 pa_operation_unref(o)
+
+                self.init_cb()
 
             if ctc == PA_CONTEXT_FAILED :
                 print

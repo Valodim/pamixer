@@ -68,6 +68,8 @@ class Sink():
         win.addch(32, 45, curses.ACS_TTEE)
         win.attroff(curses.color_pair(2))
 
+        win.refresh()
+
         self.wcontrols = win.derwin(30, maxx, 1, 0)
 
         self.winfol = win.derwin(15, 41, 33, 2)

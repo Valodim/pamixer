@@ -14,7 +14,7 @@ class ScreenSink():
 
     def __init__(self):
 
-        self.active_sink = 0
+        self.active_sink = -1
         self.sinkchars = "werty"
 
         self.show_data = True
@@ -48,6 +48,10 @@ class ScreenSink():
     def redraw(self, recurse = False):
         if self.wsinklist is None:
             return
+
+        if self.active_sink == -1 and len(par.pa_sinks) > 0:
+            self.active_sink = 0
+            par.pa_sinks[self.active_sink].layout(self.wactivesink)
 
         i = 0
         inputcount = { }
