@@ -133,7 +133,7 @@ class PulseAudio():
         return
 
     def load_module_stream_restore(self):
-        print "Reloading module-stream-restore " 
+        # print "Reloading module-stream-restore " 
         pa_context_load_module(self._context, "module-stream-restore", self.module_stream_restore_argument, self._pa_context_index_cb, None)
 
 
@@ -345,5 +345,5 @@ class PulseAudio():
         pa_ext_stream_restore_delete(self._context, names, self._pa_context_success_cb, None)
 
     def __print(self, text):
-        # print text
+        # sys.stderr.write(str(text))
         return

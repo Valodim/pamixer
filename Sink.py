@@ -170,6 +170,12 @@ class Sink():
                 volume.append(PA_VOLUME_CONVERSION_FACTOR * max(0, min(100, self.volume[i] + (+1 if up else -1) * 5)))
             par.pa.set_sink_volume(self.index, volume, self.channels)
 
+    def moveInput(self, index):
+        # get the sink inputs of current sink
+        sink_inputs = par.get_sink_inputs_by_sink(self.index)
+        # move the selected sink input to the new sink
+        par.move_sink_input(sink_inputs[self.cursor].index, index)
+
     """
     ('name', STRING),
     ('index', uint32_t),

@@ -189,7 +189,7 @@ class ParCur():
             self.cur.redraw()
 
     def __print(self, *args):
-        # print args
+        sys.stderr.write(str(args))
         return
 
 par = ParCur()
