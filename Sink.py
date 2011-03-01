@@ -27,8 +27,15 @@ state_names[PA_SINK_IDLE] = "idle"
 class Sink():
     def __init__(self, index, struct, props):
 
+        self.wcontrols = None
+        self.winfol = None
+        self.winfor = None
+
         self.index = index
         self.update(struct, props)
+
+        # -1 is volume, 0 and above are sink inputs
+        self.cursor = -1
 
     def update(self, struct, props):
         self.name = struct.name
@@ -43,33 +50,73 @@ class Sink():
         for i in range(0, self.channels+1):
             self.volume.append(int(struct.volume.values[i] / PA_VOLUME_CONVERSION_FACTOR))
 
-    def draw_controls(self, win, cursor):
+        self.redraw()
+
+    def layout(self, win):
+        # just clean up?
+        if win is None:
+            self.wcontrols = None
+            self.winfol = None
+            self.winfor = None
+            return
+
+        maxy, maxx = win.getmaxyx()
+
+        win.attron(curses.color_pair(2))
+        win.hline(32, 0, curses.ACS_HLINE, maxx)
+        win.vline(32, 45, curses.ACS_VLINE, maxy)
+        win.addch(32, 45, curses.ACS_TTEE)
+        win.attroff(curses.color_pair(2))
+
+        self.wcontrols = win.derwin(30, maxx, 1, 0)
+
+        self.winfol = win.derwin(15, 41, 33, 2)
+        self.winfor = win.derwin(33, 48)
+
+        self.redraw()
+
+    def redraw(self, recurse = False):
+        self.draw_controls()
+        self.draw_info()
+
+    def draw_controls(self):
+        # don't proceed if it's not even our turn to draw
+        if self.wcontrols is None:
+            return
+
+        # if we aren't active, this needn't even be considered
+        self.cursorCheck()
+
+        wcontrols = self.wcontrols
+        wcontrols.erase()
 
         # gauge, one bar for each channel
-        gauge = win.derwin(22, self.channels+2, 7, 8-(self.channels/2))
+        gauge = wcontrols.derwin(22, self.channels+2, 2, 8-(self.channels/2))
         for i in range(0, self.channels+1):
             barheight = int(self.volume[i] * 0.2)
             gauge.vline(21-barheight, i+1, curses.ACS_BLOCK, barheight)
         gauge.border()
 
-        win.move(29, 6)
-        win.addstr("Volume", curses.A_BOLD if cursor == -1 else 0)
+        wcontrols.move(26, 6)
+        wcontrols.addstr("Volume", curses.A_BOLD if self.cursor == -1 else 0)
 
         inputs = par.get_sink_inputs_by_sink(self.index)
         i = 0
         for input in inputs:
-            input.draw(win.derwin(7, 20 + i*20), cursor == i)
+            input.draw(wcontrols.derwin(2, 20 + i*20), self.cursor == i)
             i += 1
 
-    def draw_info(self, win):
-        maxy, maxx = win.getmaxyx()
-        win.attron(curses.color_pair(2))
-        win.hline(0, 0, curses.ACS_HLINE, maxx)
-        win.vline(0, 45, curses.ACS_VLINE, maxy)
-        win.addch(0, 45, curses.ACS_TTEE)
-        win.attroff(curses.color_pair(2))
+        wcontrols.refresh()
 
-        wleft = win.derwin(10, 42, 1, 2)
+    def draw_info(self):
+        if self.winfol is None or self.winfor is None:
+            return
+
+        wleft = self.winfol
+        wright = self.winfor
+
+        wleft.erase()
+        wright.erase()
 
         wleft.move(0, 2)
         wleft.addstr(center(self.name, 36) + "\n")
@@ -78,7 +125,6 @@ class Sink():
         wleft.addstr("\nLatency:\t" + str(self.latency * 100))
         wleft.addstr("\nState:\t\t" + state_names[self.state])
 
-        wright = win.derwin(1, 48)
         if(self.driver == "module-alsa-sink.c") and 'alsa.card_name' in self.props:
             wright.addstr("\nCard Name:\t" + self.props['alsa.card_name'])
         elif(self.driver == "module-tunnel.c"):
@@ -86,8 +132,37 @@ class Sink():
             wright.addstr("\nRemote User:\t" + self.props['tunnel.remote.user'])
             wright.addstr("\nRemote Sink:\t" + self.props['tunnel.remote.description'])
 
-    def changeVolume(self, cursor, up):
-        if cursor == -1:
+        wleft.refresh()
+        wright.refresh()
+
+    def cursorCheck(self):
+        """
+        Moves the cursor to the left until there is a sink input,
+        or it's at the sink's volume.
+        """
+        sink_inputs = par.get_sink_inputs_by_sink(self.index)
+        while self.cursor >= len(sink_inputs):
+            self.cursor -= 1
+        if self.cursor < -1:
+            self.cursor = -1
+
+    def key_event(self, event):
+
+        # change focus
+        if event == curses.KEY_LEFT or event == curses.KEY_RIGHT:
+            self.cursor += -1 if event == curses.KEY_LEFT else +1
+            # cursorCheck happens here, too!
+            self.draw_controls()
+            return True
+
+        elif event == curses.KEY_UP or event == curses.KEY_DOWN:
+            self.changeVolume(self.cursor, event == curses.KEY_UP)
+            self.draw_controls()
+            return True
+
+
+    def changeVolume(self, up):
+        if self.cursor == -1:
             volume = []
             for i in range(0, self.channels+1):
                 volume.append(PA_VOLUME_CONVERSION_FACTOR * max(0, min(100, self.volume[i] + (+1 if up else -1) * 5)))

@@ -8,7 +8,7 @@ class Curses():
         self.counter = 0
         self.screen = None
 
-        self.modes = [ CursesHelp(), CursesSink() ]
+        self.modes = [ ScreenHelp(), ScreenSink() ]
 
         self.active_mode = 1
 
@@ -20,13 +20,13 @@ class Curses():
         self.subscreen.attrset(0)
         self.subscreen.clear()
 
-        self.modes[self.active_mode].draw(self.subscreen)
-
-        self.refresh()
+        self.modes[self.active_mode].layout(self.subscreen)
+        self.redraw()
 
         return
 
-    def refresh(self):
+    def redraw(self):
+        self.modes[self.active_mode].redraw(True)
         self.subscreen.refresh()
 
     def keyevent(self, event):
@@ -62,9 +62,9 @@ class Curses():
         self.screen.attroff(curses.color_pair(2))
 
         self.subscreen = self.screen.subwin(2, 0)
-        self.screen.refresh()
 
         self.update()
+
         while True:
             event = self.screen.getch()
             if event == -1:
@@ -81,6 +81,5 @@ class Curses():
 
         curses.endwin()
 
-from CursesSink import CursesSink
-from CursesHelp import CursesHelp
-
+from screens.ScreenHelp import ScreenHelp
+from screens.ScreenSink import ScreenSink

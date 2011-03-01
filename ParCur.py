@@ -37,9 +37,7 @@ class ParCur():
         self.pa_sink_inputs = {}
         self.pa_outputs = {}
 
-    def run(self, cur):
-        self.cur = cur
-
+    def run(self):
         self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change)
 
     def set_mute(self, mute):
@@ -184,7 +182,7 @@ class ParCur():
         sys.stdout.flush()
         # return
         if self.cur:
-            self.cur.update()
+            self.cur.redraw()
 
     def __print(self, *args):
         # print args

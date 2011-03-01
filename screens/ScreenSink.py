@@ -10,8 +10,7 @@ state_colors[PA_SINK_RUNNING] = 3
 state_colors[PA_SINK_SUSPENDED] = 4
 state_colors[PA_SINK_IDLE] = 1
 
-
-class CursesSink():
+class ScreenSink():
 
     def __init__(self):
 
@@ -20,29 +19,37 @@ class CursesSink():
 
         self.show_data = True
 
-        # -1 is volume, 0 and above are sink inputs
+        self.win = None
+        self.wsinklist = None
+
         self.cursor = -1
+
         # 0 = 
         self.mode = MODE_NORMAL
         return
 
-    def cursorCheck(self):
-        """
-        Moves the cursor to the left until there is a sink input,
-        or it's at the sink's volume.
-        """
-        sink_inputs = par.get_sink_inputs_by_sink(self.active_sink)
-        while self.cursor >= len(sink_inputs):
-            self.cursor -= 1
-        if self.cursor < -1:
-            self.cursor = -1
+    def layout(self, win):
+        self.win = win
 
-    def draw(self, win):
-        self.cursorCheck()
+        maxy, maxx = win.getmaxyx()
 
-        win.move(0, 1)
+        # window for the sink list
+        self.wsinklist = win.derwin(1, maxx, 0, 0)
+        self.redraw()
+
+        # window for the active sink
+        self.wactivesink = win.derwin(2, 0)
+
+        # print the active sink
+        if len(par.pa_sinks) > 0:
+            # show some controls
+            par.pa_sinks[self.active_sink].layout(self.wactivesink)
+
+    def redraw(self, recurse = False):
+        if self.wsinklist is None:
+            return
+
         i = 0
-
         inputcount = { }
         for input in par.pa_sink_inputs.values():
             if input.sink in inputcount:
@@ -50,52 +57,48 @@ class CursesSink():
             else:
                 inputcount[input.sink] = 1
 
+        wsinklist = self.wsinklist
+
+        wsinklist.erase()
+        wsinklist.move(0, 0)
+
         # print the available sinks
         for sink in par.pa_sinks.values():
             if i > 0:
-                win.addstr(" | ")
-            win.addstr(self.sinkchars[i] + ": ")
+                wsinklist.addstr(" | ")
+            wsinklist.addstr(self.sinkchars[i] + ": ")
 
-            win.addstr(sink.name, curses.color_pair(state_colors[sink.state]) | (curses.A_BOLD if i == self.active_sink else 0))
+            wsinklist.addstr(sink.name, curses.color_pair(state_colors[sink.state]) | (curses.A_BOLD if i == self.active_sink else 0))
 
             if sink.index in inputcount and inputcount[sink.index] > 0:
-                win.addstr(" [" + str(inputcount[sink.index]) + "]")
+                wsinklist.addstr(" [" + str(inputcount[sink.index]) + "]")
 
             i += 1
 
-        # print the active sink
-        if len(par.pa_sinks) > 0:
-            # show some controls
-            par.pa_sinks[self.active_sink].draw_controls(win.derwin(2, 0), self.cursor)
+        wsinklist.refresh()
 
-            # and some statistics and data
-            if self.show_data:
-                par.pa_sinks[self.active_sink].draw_info(win.derwin(34, 0))
+        if recurse and self.active_sink in par.pa_sinks:
+            par.pa_sinks[self.active_sink].redraw(True)
 
         return
 
     def key_event(self, event):
         if self.mode == MODE_NORMAL:
 
-            if self.cursor >= 0 and event == ord("m"):
+            if par.pa_sinks[self.active_sink].cursor >= 0 and event == ord("m"):
                 self.mode = MODE_MOVE
-                return False
-
-            # change focus
-            if event == curses.KEY_LEFT or event == curses.KEY_RIGHT:
-                self.cursor += -1 if event == curses.KEY_LEFT else +1
-                return False
-
-            elif event == curses.KEY_UP or event == curses.KEY_DOWN:
-                par.pa_sinks[self.active_sink].changeVolume(self.cursor, event == curses.KEY_UP)
-                return False
+                return True
 
             # sink range
             for i in range(0, len(self.sinkchars)):
                 if event == ord(self.sinkchars[i]) and par.pa_sinks.has_key(i):
+                    par.pa_sinks[self.active_sink].layout(None)
                     self.active_sink = i
-                    self.cursorCheck()
-                    return False
+                    par.pa_sinks[self.active_sink].layout(self.wactivesink)
+                    self.redraw()
+                    return True
+
+            return par.pa_sinks[self.active_sink].key_event(event)
 
         elif self.mode == MODE_MOVE:
 

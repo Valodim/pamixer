@@ -1,6 +1,6 @@
 import curses 
 
-class CursesHelp():
+class ScreenHelp():
     def __init__(self):
         return
 
