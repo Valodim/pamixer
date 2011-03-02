@@ -8,7 +8,7 @@ class Curses():
         self.counter = 0
         self.screen = None
 
-        self.modes = [ ScreenHelp(), ScreenSink() ]
+        self.modes = [ ScreenHelp(), ScreenSink(), ScreenClients() ]
 
         self.active_mode = 1
 
@@ -30,6 +30,11 @@ class Curses():
         self.subscreen.refresh()
 
     def keyevent(self, event):
+
+        if ord('1') <= event <= ord(str(len(self.modes))):
+            self.active_mode = event - ord('1')
+            return False
+
 
         # nothing here? ok, allow active mode to parse
         return self.modes[self.active_mode].key_event(event)
@@ -56,7 +61,9 @@ class Curses():
         self.screen.addstr("1", curses.A_BOLD) # | (curses.COLOR_GREEN if self.active_mode == 1 else 0))
         self.screen.addstr(":Help  ")
         self.screen.addstr("2", curses.A_BOLD)
-        self.screen.addstr(":Sinks")
+        self.screen.addstr(":Sinks  ")
+        self.screen.addstr("3", curses.A_BOLD)
+        self.screen.addstr(":Clients")
         self.screen.attron(curses.color_pair(2))
         self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
         self.screen.attroff(curses.color_pair(2))
@@ -83,3 +90,4 @@ class Curses():
 
 from screens.ScreenHelp import ScreenHelp
 from screens.ScreenSink import ScreenSink
+from screens.ScreenClients import ScreenClients

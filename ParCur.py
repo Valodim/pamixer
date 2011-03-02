@@ -32,7 +32,7 @@ class ParCur():
     def __init__(self):
         self.cur = None
 
-        self.pa_clients_by_id = {}  # clients by id
+        self.pa_clients = {}  # clients by id
         self.pa_sinks = {}
         self.pa_sink_inputs = {}
         self.pa_outputs = {}
@@ -81,35 +81,27 @@ class ParCur():
                 if not sink.client.output:
                     self.pa.move_sink(sink.index, self.managed_output_name)
 
-    def on_new_pa_client(self, index, name, pid, proplist):
-        if not pid: pid = -1
+    def on_new_pa_client(self, index, struct, proplist):
         # Link all clients with same name into same object
+        if not self.pa_clients.has_key(index):
+            self.__print("new client: ", "index:")
 
-        if not self.pa_clients_by_id.has_key(index):
-            self.__print("new client: ", "index:", index, "name:", name, "pid: ", int(pid))
-
-            client = Client(self, self.clean_client_name(name), int(pid))
+            self.pa_clients[index] = Client(index, struct, proplist)
         else:
-            client = self.pa_clients_by_id[index]
-            client.pid = int(pid)
-
-            client.name = self.clean_client_name(name)
-            self.__print("changed client: ", "index:", index, "name:", name, "pid: ", client.pid)
-
-        # always set the index to the new client
-        self.pa_clients_by_id[index] = client
+            self.pa_clients[index].update(struct, proplist)
+            self.__print("changed client: ", "index:")
 
         # and update view
         self.update()
 
     def on_remove_pa_client(self, index):
-        if self.pa_clients_by_id.has_key(index):
-            client = self.pa_clients_by_id[index]
+        if self.pa_clients.has_key(index):
+            client = self.pa_clients[index]
 
             self.__print("remove client", index, client.name)
 
             # remove from by ID list
-            del self.pa_clients_by_id[index]
+            del self.pa_clients[index]
 
             self.update()
 
@@ -147,13 +139,6 @@ class ParCur():
             del self.pa_sink_inputs[index]
 
         self.update()
-
-    def clean_client_name(self, name):
-        name = name.strip()
-        alsa_plugin = "ALSA plug-in ["
-        if name.startswith(alsa_plugin):
-            name = name[len(alsa_plugin):-1]
-        return name
 
     def get_sink_inputs_by_sink(self, index):
         result = []
