@@ -25,7 +25,7 @@ def null_cb(a=None, b=None, c=None, d=None):
     return
 
 class PulseAudio():
-    def __init__(self, init_cb, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, volume_change_cb):
+    def __init__(self, init_cb, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, volume_change_cb, new_sample_cb, remove_sample_cb):
 
         self.sinks = {}
         self.monitor_sinks = []
@@ -38,6 +38,8 @@ class PulseAudio():
         self.remove_client_cb = remove_client_cb
         self.new_sink_cb = new_sink_cb
         self.remove_sink_cb = remove_sink_cb
+        self.new_sample_cb = new_sample_cb
+        self.remove_sample_cb = remove_sample_cb
         # self.new_source_cb = new_source_cb
         # self.remove_source_cb = remove_source_cb
         self.volume_change_cb = volume_change_cb
@@ -72,6 +74,7 @@ class PulseAudio():
                 self._pa_context_subscribe_cb = pa_context_subscribe_cb_t(self.pa_context_subscribe_cb)
                 self._pa_source_info_cb = pa_source_info_cb_t(self.pa_source_info_cb)
                 self._pa_source_output_info_cb = pa_source_output_info_cb_t(self.pa_source_output_info_cb)
+                self._pa_sample_info_list_cb = pa_sample_info_cb_t(self.pa_sample_info_cb)
                 self._pa_sink_input_info_list_cb = pa_sink_input_info_cb_t(self.pa_sink_input_info_cb)
                 self._pa_client_info_list_cb = pa_client_info_cb_t(self.pa_client_info_cb)
                 self._pa_module_info_cb = pa_module_info_cb_t(self.pa_module_info_cb)
@@ -92,6 +95,9 @@ class PulseAudio():
                 o = pa_context_get_sink_info_list(self._context, self._pa_sink_info_cb, None)
                 pa_operation_unref(o)
 
+                o = pa_context_get_sample_info_list(self._context, self._pa_sample_info_list_cb, True)
+                pa_operation_unref(o)
+
                 o = pa_context_get_sink_input_info_list(self._context, self._pa_sink_input_info_list_cb, True)
                 pa_operation_unref(o)
 
@@ -102,6 +108,7 @@ class PulseAudio():
                                                 PA_SUBSCRIPTION_MASK_SINK_INPUT|
                                                 PA_SUBSCRIPTION_MASK_SOURCE_OUTPUT|
                                                 PA_SUBSCRIPTION_MASK_CLIENT|
+                                                PA_SUBSCRIPTION_MASK_SAMPLE_CACHE|
                                                 PA_SUBSCRIPTION_MASK_SERVER), self._null_cb, None)  
 
                 pa_operation_unref(o)
@@ -222,6 +229,14 @@ class PulseAudio():
                     o = pa_context_get_sink_info_by_index(self._context, int(index), self._pa_sink_info_cb, True)
                     pa_operation_unref(o)
 
+            if et == PA_SUBSCRIPTION_EVENT_SAMPLE_CACHE:
+                if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
+                     self.remove_sample_cb(int(index))
+                     # self.monitor_sinks.remove(index)
+                else:
+                    o = pa_context_get_sample_info_by_index(self._context, int(index), self._pa_sample_info_list_cb, True)
+                    pa_operation_unref(o)
+
             if et == PA_SUBSCRIPTION_EVENT_SINK_INPUT:
                 if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
                      self.remove_sink_input_cb(int(index))
@@ -259,12 +274,17 @@ class PulseAudio():
             self.__print( "pa :: ERROR pa_client_info_cb %s" % text)    
             raise Exception
 
-    def pa_sink_input_info_cb(self, context, struct, index, user_data):
+    def pa_sample_info_cb(self, context, struct, index, user_data):
         if struct and user_data:
 
-            # TODO: Only do this if app dosnt release pulse streams correctly
-            # if float(struct.contents.sink) in self.sinks:
-                # self.pa_create_monitor_stream_for_sink_input(int(struct.contents.index), self.sinks[float(struct.contents.sink)], struct.contents.name)
+            # here we go...
+            self.__print( "SAMPLE INFO")
+            # self.__print( pa_proplist_to_string(struct.contents.proplist))
+
+            self.new_sample_cb(int(struct.contents.index), struct.contents)
+
+    def pa_sink_input_info_cb(self, context, struct, index, user_data):
+        if struct and user_data:
 
             # here we go...
             self.__print( "SINK INPUT INFO")

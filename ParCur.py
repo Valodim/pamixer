@@ -32,13 +32,14 @@ class ParCur():
     def __init__(self):
         self.cur = None
 
+        self.pa_samples = {}  # samples by id
         self.pa_clients = {}  # clients by id
         self.pa_sinks = {}
         self.pa_sink_inputs = {}
         self.pa_outputs = {}
 
     def run(self):
-        self.pa = PulseAudio(self.on_init, self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change)
+        self.pa = PulseAudio(self.on_init, self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change, self.on_new_sample, self.on_remove_sample)
 
         # set some helper functions
         self.volume_to_linear = self.pa.volume_to_linear
@@ -129,6 +130,25 @@ class ParCur():
 
         self.update()
 
+    def on_new_sample(self, index, struct):
+        if not self.pa_samples.has_key(index):
+            self.__print("new sample:", index, struct.name)
+            self.pa_samples[index] = Sample(index, struct)
+        else:
+            self.__print("changed sample:", index, struct.name)
+            self.pa_samples[index].update(struct)
+
+        self.update()
+        return
+
+    def on_remove_sample(self, index):
+        if self.pa_samples.has_key(index):
+            self.__print("remove sample", index)
+            del self.pa_samples[index]
+
+        self.update()
+        return
+
     def get_sink_inputs_by_client(self, index):
         result = []
         for input in self.pa_sink_inputs.values():
@@ -182,3 +202,4 @@ from Curses import Curses
 from Client import Client
 from Sink import Sink
 from SinkInput import SinkInput
+from Sample import Sample
