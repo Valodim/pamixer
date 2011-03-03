@@ -30,12 +30,15 @@ class SinkInput():
         self.client = struct.client
         self.sink = struct.sink
 
+        self.driver = struct.driver
+        self.driver = struct.driver
+
         self.channels = struct.volume.channels
         self.volume = []
         for i in range(0, self.channels+1):
             self.volume.append(int(struct.volume.values[i] / PA_VOLUME_CONVERSION_FACTOR))
 
-    def draw(self, win, active):
+    def draw_control(self, win, active):
 
         # gauge, one bar for each channel
         gauge = win.derwin(22, self.channels+2, 0, 8-(self.channels/2))
@@ -45,9 +48,18 @@ class SinkInput():
         gauge.border()
 
         win.move(23, 4)
-        win.addstr(center(par.pa_clients[self.client].clean_name, 12), curses.color_pair(2) if par.pa_clients[self.client].clean_name != par.pa_clients[self.client].name else 0)
+        win.addstr(center(par.pa_clients[self.client].clean_name, 13), curses.color_pair(2) if par.pa_clients[self.client].clean_name != par.pa_clients[self.client].name else 0)
         win.move(24, 3)
-        win.addstr(center(self.name, 12), curses.A_BOLD if active else 0)
+        win.addstr(center(self.name, 13), curses.A_BOLD if active else 0)
+
+    def draw_info(self, win):
+        win.move(0, 2)
+        win.addstr(center(self.name, 40) + "\n")
+
+        win.addstr("\nDriver:\t\t" + self.driver)
+        win.addstr("\nClient:\t\t" + par.pa_clients[self.client].name)
+        win.addstr("\nLatency:\t")
+        win.addstr("\nState:\t\t")
 
 from ParCur import par
 

@@ -105,7 +105,7 @@ class Sink():
         inputs = par.get_sink_inputs_by_sink(self.index)
         i = 0
         for input in inputs:
-            input.draw(wcontrols.derwin(2, 20 + i*20), self.cursor == i)
+            input.draw_control(wcontrols.derwin(2, 20 + i*20), self.cursor == i)
             i += 1
 
         wcontrols.refresh()
@@ -127,15 +127,18 @@ class Sink():
         wleft.addstr("\nLatency:\t" + str(self.latency * 100))
         wleft.addstr("\nState:\t\t" + state_names[self.state])
 
-        if(self.driver == "module-alsa-sink.c") and 'alsa.card_name' in self.props:
-            wright.addstr("\nCard Name:\t" + self.props['alsa.card_name'])
-        elif(self.driver == "module-tunnel.c"):
-            wright.addstr("\nServer:\t\t" + self.props['tunnel.remote.server'])
-            wright.addstr("\nRemote User:\t" + self.props['tunnel.remote.user'])
-            wright.addstr("\nRemote Sink:\t" + self.props['tunnel.remote.description'])
+        if self.cursor == -1:
+            if(self.driver == "module-alsa-sink.c") and 'alsa.card_name' in self.props:
+                wright.addstr("\nCard Name:\t" + self.props['alsa.card_name'])
+            elif(self.driver == "module-tunnel.c"):
+                wright.addstr("\nServer:\t\t" + self.props['tunnel.remote.server'])
+                wright.addstr("\nRemote User:\t" + self.props['tunnel.remote.user'])
+                wright.addstr("\nRemote Sink:\t" + self.props['tunnel.remote.description'])
+        else:
+            par.get_sink_inputs_by_sink(self.index)[self.cursor].draw_info(wright)
 
-        wleft.refresh()
         wright.refresh()
+        wleft.refresh()
 
     def cursorCheck(self):
         """
@@ -155,6 +158,7 @@ class Sink():
             self.cursor += -1 if event == curses.KEY_LEFT else +1
             # cursorCheck happens here, too!
             self.draw_controls()
+            self.draw_info()
             return True
 
         elif event == curses.KEY_UP or event == curses.KEY_DOWN:
