@@ -140,6 +140,13 @@ class ParCur():
 
         self.update()
 
+    def get_sink_inputs_by_client(self, index):
+        result = []
+        for input in self.pa_sink_inputs.values():
+            if input.client == index:
+                result.append(input)
+        return result
+
     def get_sink_inputs_by_sink(self, index):
         result = []
         for input in self.pa_sink_inputs.values():

@@ -31,16 +31,17 @@ class ScreenClients():
 
         maxy, maxx = win.getmaxyx()
 
-        # window for the sink list
+        # window for the client list
         self.wclientlist = win.derwin(1, maxx, 0, 0)
 
-        # window for the active sink
+        # window for the active client
         self.wactiveclient = win.derwin(2, 0)
 
-        # print the active sink
-        if len(par.pa_sinks) > 0:
+        # print the active client
+        if len(par.pa_clients) > 0:
+            self.active_client = 0
             # show some controls
-            par.pa_clients[self.active_client].layout(self.wactiveclient)
+            par.pa_clients.values()[self.active_client].layout(self.wactiveclient)
 
         # initial redraw
         self.redraw()
@@ -51,7 +52,7 @@ class ScreenClients():
 
         if self.active_client == -1 and len(par.pa_clients) > 0:
             # self.active_client = 0
-            par.pa_clients[self.active_client].layout(self.wactiveclient)
+            par.pa_clients.values()[self.active_client].layout(self.wactiveclient)
 
         inputcount = { }
         for input in par.pa_sink_inputs.values():
@@ -72,40 +73,39 @@ class ScreenClients():
                 wclientlist.addstr(" | ")
             wclientlist.addstr(self.clientchars[i] + ": ")
 
-            wclientlist.addstr(client.name, curses.color_pair(curses.A_BOLD if i == self.active_client else 0))
+            wclientlist.addstr(client.name, curses.A_BOLD if i == self.active_client else 0)
 
             if client.index in inputcount and inputcount[client.index] > 0:
                 wclientlist.addstr(" [" + str(inputcount[client.index]) + "]")
 
             i += 1
 
-        if recurse and self.active_client in par.pa_clients:
-            par.pa_clients[self.active_client].redraw(True)
+        if recurse and self.active_client < len(par.pa_clients):
+            par.pa_clients.values()[self.active_client].redraw(True)
 
         wclientlist.refresh()
 
         return
 
     def key_event(self, event):
-        return False
 
-        if self.mode == MODE_NORMAL:
+        if True or self.mode == MODE_NORMAL:
 
             # cheating a little here, don't allow move on the own volume
-            if par.pa_sinks[self.active_sink].cursor >= 0 and event == ord("m"):
-                self.mode = MODE_MOVE
-                return True
+            # if par.pa_sinks[self.active_sink].cursor >= 0 and event == ord("m"):
+                # self.mode = MODE_MOVE
+                # return True
 
             # sink range
-            for i in range(0, len(self.sinkchars)):
-                if event == ord(self.sinkchars[i]) and par.pa_sinks.has_key(i):
-                    par.pa_sinks[self.active_sink].layout(None)
-                    self.active_sink = i
-                    par.pa_sinks[self.active_sink].layout(self.wactivesink)
+            for i in range(0, max(len(par.pa_clients), len(self.clientchars))):
+                if event == ord(self.clientchars[i]):
+                    par.pa_clients.values()[self.active_client].layout(None)
+                    self.active_client = i
+                    par.pa_clients.values()[self.active_client].layout(self.wactiveclient)
                     self.redraw()
                     return True
 
-            return par.pa_sinks[self.active_sink].key_event(event)
+            return par.pa_clients.values()[self.active_client].key_event(event)
 
         elif self.mode == MODE_MOVE:
 

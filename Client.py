@@ -17,7 +17,10 @@
 import re
 import time
 import datetime
+import curses
+
 from xml.dom.minidom import *
+from CursesHelpers import *
 
 class Client():
 
@@ -26,11 +29,92 @@ class Client():
 
         self.update(index, struct, proplist)
 
+        # -1 is volume, 0 and above are sink inputs
+        self.cursor = -1
+
     def update(self, index, struct, proplist):
         self.name = struct.name
         self.clean_name = self.clean_client_name(struct.name)
         if 'pid' in proplist:
             self.pid = proplist['pid']
+
+    def layout(self, win):
+        # just clean up?
+        if win is None:
+            self.wcontrols = None
+            self.winfol = None
+            self.winfor = None
+            return
+
+        maxy, maxx = win.getmaxyx()
+
+        win.attron(curses.color_pair(2))
+        win.hline(32, 0, curses.ACS_HLINE, maxx)
+        win.vline(32, 45, curses.ACS_VLINE, maxy)
+        win.addch(32, 45, curses.ACS_TTEE)
+        win.attroff(curses.color_pair(2))
+
+        win.refresh()
+
+        self.wcontrols = win.derwin(30, maxx, 1, 0)
+
+        self.winfol = win.derwin(15, 41, 33, 2)
+        self.winfor = win.derwin(33, 48)
+
+        self.redraw()
+
+    def redraw(self, recurse = False):
+        self.draw_controls()
+        self.draw_info()
+
+    def draw_controls(self):
+        # don't proceed if it's not even our turn to draw
+        if self.wcontrols is None:
+            return
+
+        # if we aren't active, this needn't even be considered
+        self.cursorCheck()
+
+        wcontrols = self.wcontrols
+        wcontrols.erase()
+
+        inputs = par.get_sink_inputs_by_client(self.index)
+        i = 0
+        for input in inputs:
+            input.draw(wcontrols.derwin(2, 2 + i*20), self.cursor == i)
+            i += 1
+
+        wcontrols.refresh()
+
+    def draw_info(self):
+        if self.winfol is None or self.winfor is None:
+            return
+
+        wleft = self.winfol
+        wright = self.winfor
+
+        wleft.erase()
+        wright.erase()
+
+        wleft.move(0, 2)
+        wleft.addstr(center(self.name, 36) + "\n")
+
+        # wleft.addstr("\nDriver:\t\t" + self.driver)
+        # wleft.addstr("\nLatency:\t" + str(self.latency * 100))
+        # wleft.addstr("\nState:\t\t" + state_names[self.state])
+
+        # if(self.driver == "module-alsa-sink.c") and 'alsa.card_name' in self.props:
+            # wright.addstr("\nCard Name:\t" + self.props['alsa.card_name'])
+        # elif(self.driver == "module-tunnel.c"):
+            # wright.addstr("\nServer:\t\t" + self.props['tunnel.remote.server'])
+            # wright.addstr("\nRemote User:\t" + self.props['tunnel.remote.user'])
+            # wright.addstr("\nRemote Sink:\t" + self.props['tunnel.remote.description'])
+
+        wleft.refresh()
+        wright.refresh()
+
+    def key_event(self, event):
+        return False
 
     def is_active(self):
 
@@ -97,4 +181,15 @@ class Client():
             name = name[len(alsa_plugin):-1]
         return name
 
+    def cursorCheck(self):
+        """
+        Moves the cursor to the left until there is a sink input,
+        or it's at the sink's volume.
+        """
+        client_inputs = par.get_sink_inputs_by_client(self.index)
+        while self.cursor >= len(client_inputs):
+            self.cursor -= 1
+        if self.cursor < -1:
+            self.cursor = -1
 
+from ParCur import par
