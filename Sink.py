@@ -47,6 +47,7 @@ class Sink():
         self.props = props
 
         self.volume = par.volume_to_linear(struct.volume)
+        self.volume_db = par.volume_to_dB(struct.volume)
 
         self.redraw()
 
@@ -93,12 +94,27 @@ class Sink():
         # gauge, one bar for each channel
         gauge = wcontrols.derwin(22, self.channels+2, 2, 8-(self.channels/2))
         for i in range(0, self.channels):
-            barheight = min(20, int(self.volume[i] * 18))
-            gauge.vline(21-barheight, i+1, curses.ACS_BLOCK, barheight)
+            barheight = min(22, int(self.volume[i] * 18))
+            # lowest nine
+            if barheight > 0:
+                gauge.attron(curses.color_pair(3))
+                gauge.vline(21-min(9, barheight), i+1, curses.ACS_BLOCK, min(9, barheight))
+                gauge.attroff(curses.color_pair(3))
+            # mid eight
+            if barheight > 9:
+                gauge.vline(12-min(8, barheight-9), i+1, curses.ACS_BLOCK, min(8, barheight-9))
+            # top three (clipping!)
+            if barheight > 17:
+                gauge.attron(curses.color_pair(6))
+                gauge.vline(4-min(3, barheight-17), i+1, curses.ACS_BLOCK, min(3, barheight-17))
+                gauge.attroff(curses.color_pair(6))
         gauge.border()
 
-        wcontrols.move(26, 6)
-        wcontrols.addstr("Volume", curses.A_BOLD if self.cursor == -1 else 0)
+        wcontrols.move(26, 4)
+        wcontrols.addstr("Sink Volume", curses.A_BOLD if self.cursor == -1 else 0)
+        wcontrols.move(27, 5)
+        volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
+        wcontrols.addstr(right('{:+03.2f}'.format(volume_db_avg) + " dB", 9))
 
         inputs = par.get_sink_inputs_by_sink(self.index)
         i = 0
@@ -168,11 +184,34 @@ class Sink():
             self.draw_controls()
             return True
 
+        elif event == ord('n'):
+            if self.cursor == -1:
+                self.setVolume(1.0)
+            else:
+                par.get_sink_inputs_by_sink(self.index)[self.cursor].setVolume(1.0)
+
+            self.draw_controls()
+            return True
+
+        elif event == ord('m'):
+            if self.cursor == -1:
+                self.setVolume(0.0)
+            else:
+                par.get_sink_inputs_by_sink(self.index)[self.cursor].setVolume(0.0)
+
+            self.draw_controls()
+            return True
+
+    def setVolume(self, value):
+        volume = []
+        for i in range(0, len(self.volume)):
+            volume.append(value)
+        par.set_sink_volume(self.index, volume)
 
     def changeVolume(self, up):
         volume = []
         for i in range(0, len(self.volume)):
-            volume.append(max(0.0, min(1.0, self.volume[i] + (+0.1 if up else -0.1))))
+            volume.append(max(0.0, min(1.2, self.volume[i] + (+0.075 if up else -0.075))))
         par.set_sink_volume(self.index, volume)
 
     def moveInput(self, index):

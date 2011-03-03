@@ -42,6 +42,7 @@ class ParCur():
 
         # set some helper functions
         self.volume_to_linear = self.pa.volume_to_linear
+        self.volume_to_dB = self.pa.volume_to_dB
 
     def on_init(self):
         if self.cur:

@@ -287,6 +287,12 @@ class PulseAudio():
             cvolume.values[i] = pa_sw_volume_from_linear(volume[i])
         return cvolume
 
+    def volume_to_dB(self, cvolume):
+        volume = []
+        for i in range(0, cvolume.channels):
+            volume.append(pa_sw_volume_to_dB(cvolume.values[i]))
+        return volume
+
     def volume_to_linear(self, cvolume):
         volume = []
         for i in range(0, cvolume.channels):
