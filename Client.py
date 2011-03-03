@@ -114,6 +114,43 @@ class Client():
         wright.refresh()
 
     def key_event(self, event):
+        self.cursorCheck()
+
+        # change focus
+        if event == curses.KEY_LEFT or event == curses.KEY_RIGHT:
+            self.cursor += -1 if event == curses.KEY_LEFT else +1
+            # cursorCheck happens here, too!
+            self.draw_controls()
+            self.draw_info()
+            return True
+
+        elif event == curses.KEY_UP or event == curses.KEY_DOWN:
+            if self.cursor == -1:
+                self.changeVolume(event == curses.KEY_UP)
+            else:
+                par.get_sink_inputs_by_client(self.index)[self.cursor].changeVolume(event == curses.KEY_UP)
+
+            self.draw_controls()
+            return True
+
+        elif event == ord('n'):
+            if self.cursor == -1:
+                self.setVolume(1.0)
+            else:
+                par.get_sink_inputs_by_client(self.index)[self.cursor].setVolume(1.0)
+
+            self.draw_controls()
+            return True
+
+        elif event == ord('m'):
+            if self.cursor == -1:
+                self.setVolume(0.0)
+            else:
+                par.get_sink_inputs_by_client(self.index)[self.cursor].setVolume(0.0)
+
+            self.draw_controls()
+            return True
+
         return False
 
     def is_active(self):
@@ -189,7 +226,9 @@ class Client():
         client_inputs = par.get_sink_inputs_by_client(self.index)
         while self.cursor >= len(client_inputs):
             self.cursor -= 1
-        if self.cursor < -1:
+        if self.cursor < 0 and len(client_inputs) > 0:
+            self.cursor = 0
+        if len(client_inputs) == 0:
             self.cursor = -1
 
 from ParCur import par
