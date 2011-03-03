@@ -207,6 +207,13 @@ class Sink():
             self.draw_controls()
             return True
 
+        elif event == ord('K'):
+            if self.cursor >= 0:
+                par.get_sink_inputs_by_sink(self.index)[self.cursor].kill()
+
+            self.draw_controls()
+            return True
+
     def setVolume(self, value):
         volume = []
         for i in range(0, len(self.volume)):

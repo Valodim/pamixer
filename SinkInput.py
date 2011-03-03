@@ -79,6 +79,9 @@ class SinkInput():
         win.addstr("\nLatency:\t")
         win.addstr("\nState:\t\t")
 
+    def kill(self):
+        par.kill_sink_input(self.index)
+
     def setVolume(self, value):
         volume = []
         for i in range(0, len(self.volume)):
