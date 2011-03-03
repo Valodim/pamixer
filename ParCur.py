@@ -40,20 +40,8 @@ class ParCur():
     def run(self):
         self.pa = PulseAudio(self.on_init, self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change)
 
-    def set_mute(self, mute):
-        self.is_mute = mute
-        if self.slider: self.slider.update_mute_status()
-
-    def get_current_sink_volume(self):
-        self.pa.get_sink_info_by_name(self.managed_output_name)
-
-    def __adjust_volumes(self):
-
-        # Always update based on active sinks
-        for sink in self.pa_sink_inputs.values():
-            if sink.set_volume():
-                # set pa volume
-                self.pa.set_sink_volume(sink.index, sink.volume, sink.channels)  
+        # set some helper functions
+        self.volume_to_linear = self.pa.volume_to_linear
 
     def on_init(self):
         if self.cur:
@@ -168,10 +156,13 @@ class ParCur():
                 self.__print("move", sink.name, "to", self.managed_output_name)
                 self.pa.move_sink(sink.index, self.managed_output_name)
 
-    def exit(self):
-        # Reset all volumes
-        self.reset_all_volumes()
-        sys.exit(0)
+    def set_sink_volume(self, index, volume):
+        cvolume = self.pa.volume_from_linear(volume)
+        self.pa.set_sink_volume(index, cvolume)
+
+    def set_sink_input_volume(self, index, volume):
+        cvolume = self.pa.volume_from_linear(volume)
+        self.pa.set_sink_volume(index, cvolume)
 
     def update(self):
         print "\a"

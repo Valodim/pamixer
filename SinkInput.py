@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import curses 
-from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR
 
 from CursesHelpers import *
 
@@ -34,16 +33,14 @@ class SinkInput():
         self.driver = struct.driver
 
         self.channels = struct.volume.channels
-        self.volume = []
-        for i in range(0, self.channels+1):
-            self.volume.append(int(struct.volume.values[i] / PA_VOLUME_CONVERSION_FACTOR))
+        self.volume = par.volume_to_linear(struct.volume)
 
     def draw_control(self, win, active):
 
         # gauge, one bar for each channel
         gauge = win.derwin(22, self.channels+2, 0, 8-(self.channels/2))
-        for i in range(0, self.channels+1):
-            barheight = int(self.volume[i] * 0.2)
+        for i in range(0, self.channels):
+            barheight = min(20, int(self.volume[i] * 18))
             gauge.vline(21-barheight, i+1, curses.ACS_BLOCK, barheight)
         gauge.border()
 

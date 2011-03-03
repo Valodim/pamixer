@@ -1,6 +1,6 @@
 import curses 
 
-from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR, PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
+from pulseaudio.PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 
 MODE_NORMAL = 0
 MODE_MOVE = 1

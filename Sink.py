@@ -16,7 +16,7 @@
 
 import curses 
 
-from pulseaudio.PulseAudio import PA_VOLUME_CONVERSION_FACTOR, PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
+from pulseaudio.PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 from CursesHelpers import *
 
 state_names = { }
@@ -46,9 +46,7 @@ class Sink():
         self.state = struct.state
         self.props = props
 
-        self.volume = []
-        for i in range(0, self.channels+1):
-            self.volume.append(int(struct.volume.values[i] / PA_VOLUME_CONVERSION_FACTOR))
+        self.volume = par.volume_to_linear(struct.volume)
 
         self.redraw()
 
@@ -94,8 +92,8 @@ class Sink():
 
         # gauge, one bar for each channel
         gauge = wcontrols.derwin(22, self.channels+2, 2, 8-(self.channels/2))
-        for i in range(0, self.channels+1):
-            barheight = int(self.volume[i] * 0.2)
+        for i in range(0, self.channels):
+            barheight = min(20, int(self.volume[i] * 18))
             gauge.vline(21-barheight, i+1, curses.ACS_BLOCK, barheight)
         gauge.border()
 
@@ -162,17 +160,17 @@ class Sink():
             return True
 
         elif event == curses.KEY_UP or event == curses.KEY_DOWN:
-            self.changeVolume(self.cursor, event == curses.KEY_UP)
+            if self.cursor == -1:
+                self.changeVolume(event == curses.KEY_UP)
             self.draw_controls()
             return True
 
 
     def changeVolume(self, up):
-        if self.cursor == -1:
-            volume = []
-            for i in range(0, self.channels+1):
-                volume.append(PA_VOLUME_CONVERSION_FACTOR * max(0, min(100, self.volume[i] + (+1 if up else -1) * 5)))
-            par.pa.set_sink_volume(self.index, volume, self.channels)
+        volume = []
+        for i in range(0, len(self.volume)):
+            volume.append(max(0.0, min(1.0, self.volume[i] + (+0.1 if up else -0.1))))
+        par.set_sink_volume(self.index, volume)
 
     def moveInput(self, index):
         # get the sink inputs of current sink
