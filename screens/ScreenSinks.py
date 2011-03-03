@@ -91,7 +91,7 @@ class ScreenSinks():
         if self.mode == MODE_NORMAL:
 
             # cheating a little here, don't allow move on the own volume
-            if par.pa_sinks[self.active_sink].cursor >= 0 and event == ord("M"):
+            if event == ord("M") and par.pa_sinks[self.active_sink].cursor >= 0:
                 self.mode = MODE_MOVE
                 return True
 

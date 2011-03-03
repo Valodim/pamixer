@@ -17,10 +17,11 @@ class ScreenScripts():
 
         self.active_sink = -1
 
+        self.win = None
         self.windex = None
         self.wpreview = None
 
-        self.show_preview = True
+        self.cursor = -1
 
         self.scripts = os.listdir("scripts")
 
@@ -55,34 +56,61 @@ class ScreenScripts():
     def redraw(self, recurse = False):
         if self.windex is None:
             return
+
         windex = self.windex
         wpreview = self.wpreview
 
         windex.erase()
         windex.move(0, 0)
 
-        for script in self.scripts:
-            windex.addstr(script + "\n")
+        self.cursorCheck()
+
+        for i in range(0, len(self.scripts)):
+            windex.addstr(self.scripts[i] + "\n", curses.A_BOLD if i == self.cursor else 0)
 
         wpreview.erase()
         wpreview.move(0, 1)
 
-        scriptfile = open("scripts/" + self.scripts[0])
-        script = scriptfile.readlines()
-        scriptfile.close()
+        if self.cursor >= 0:
+            scriptfile = open("scripts/" + self.scripts[self.cursor])
+            script = scriptfile.readlines()
+            scriptfile.close()
 
-        for line in script:
-            wpreview.addstr(line)
-
-        # if recurse and self.active_sink in par.pa_sinks:
-            # par.pa_sinks[self.active_sink].redraw(True)
+            for line in script:
+                wpreview.addstr(line)
 
         windex.refresh()
         wpreview.refresh()
+        self.win.refresh()
 
         return
 
+    def cursorCheck(self):
+        """
+        Moves the cursor to the left until there is a sink input,
+        or it's at the sink's volume.
+        """
+        while self.cursor >= len(self.scripts):
+            self.cursor -= 1
+        if self.cursor < 0 and len(self.scripts) > 0:
+            self.cursor = 0
+        elif len(self.scripts) == 0:
+            self.cursor = -1
+
     def key_event(self, event):
+        self.cursorCheck()
+
+        # change focus
+        if event == curses.KEY_UP or event == curses.KEY_DOWN:
+            self.cursor += -1 if event == curses.KEY_UP else +1
+            # cursorCheck happens here, too!
+            self.redraw()
+            return True
+
+        # change focus
+        if event == ord('X'):
+            return True
+
         return False
 
 from ParCur import par
