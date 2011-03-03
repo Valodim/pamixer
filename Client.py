@@ -125,9 +125,7 @@ class Client():
             return True
 
         elif event == curses.KEY_UP or event == curses.KEY_DOWN:
-            if self.cursor == -1:
-                self.changeVolume(event == curses.KEY_UP)
-            else:
+            if self.cursor >= 0:
                 par.get_sink_inputs_by_client(self.index)[self.cursor].changeVolume(event == curses.KEY_UP)
 
             self.draw_controls()
@@ -152,64 +150,6 @@ class Client():
             return True
 
         return False
-
-    def is_active(self):
-
-        # If ear candy did pause then consider active
-        if self.__pause_status > 0: return True
-
-        # no sinks then not active
-        if len(self.sinks.values()) == 0: return False
-
-        timestamp = time.mktime(datetime.datetime.now().timetuple())
-
-        # check meter levels on others
-        if self.apply_volume_meter_hack:
-            for sink in self.sinks.values():
-
-                if sink.volume_meter > 0:
-                    self.__pause_status = 0
-                    return True
-
-                # HACK: Check how long its been inactive... and if more than a second count as expired
-                if timestamp - sink.volume_meter_last_non_zero < 1:
-                    self.__pause_status = 0
-                    return True
-
-            return False
-
-        self.__pause_status = 0
-        return True
-
-    def set_primary(self, value):
-        if value or self.category == "default":
-            self.__fade_in()
-            if self.__pause_status > 0:
-                for plugin in self.plugins:
-                    if plugin.enabled and not plugin.is_playing():
-                        if plugin.set_pause(False): 
-                            self.__pause_status = 0
-        else:
-            self.__fade_mute()
-            if self.is_active() and self.__pause_status == 0:                 
-                self.__pause_status = 1
-
-    # called by sink, check if all sinks are at correct volume
-    def check_volume(self):
-        result = True
-        for sink in self.sinks.values():
-            result = result and sink.volume_check
-
-        if result and self.__pause_status == 1:
-           for plugin in self.plugins:
-                if plugin.enabled and plugin.is_playing():
-                    plugin.set_pause(True)
-           self.__pause_status = 2
-
-    def move_to_output(self, output):
-        if not self.output == output:
-            self.output = output
-            self.core.move_client(self)
 
     def clean_client_name(self, name):
         name = name.strip()
