@@ -304,7 +304,7 @@ class PulseAudio():
         self.__print("set_sink_input_volume")
 
         # Note setting volume causes a trigger of sink_input_info which will gives us back new volume!
-        o = pa_context_set_sink_input_volume(self._context, index, vol, self._null_cb, None) # NOTE: dont pass in any thing here causes a seg fault
+        o = pa_context_set_sink_input_volume(self._context, index, cvolume, self._null_cb, None) # NOTE: dont pass in any thing here causes a seg fault
         pa_operation_unref(o)
 
     def get_sink_info_by_name(self, sink_name):

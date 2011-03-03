@@ -58,6 +58,12 @@ class SinkInput():
         win.addstr("\nLatency:\t")
         win.addstr("\nState:\t\t")
 
+    def changeVolume(self, up):
+        volume = []
+        for i in range(0, len(self.volume)):
+            volume.append(max(0.0, min(1.0, self.volume[i] + (+0.1 if up else -0.1))))
+        par.set_sink_input_volume(self.index, volume)
+
 from ParCur import par
 
 """

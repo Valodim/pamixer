@@ -162,6 +162,9 @@ class Sink():
         elif event == curses.KEY_UP or event == curses.KEY_DOWN:
             if self.cursor == -1:
                 self.changeVolume(event == curses.KEY_UP)
+            else:
+                par.get_sink_inputs_by_sink(self.index)[self.cursor].changeVolume(event == curses.KEY_UP)
+
             self.draw_controls()
             return True
 

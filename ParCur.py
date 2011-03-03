@@ -162,7 +162,7 @@ class ParCur():
 
     def set_sink_input_volume(self, index, volume):
         cvolume = self.pa.volume_from_linear(volume)
-        self.pa.set_sink_volume(index, cvolume)
+        self.pa.set_sink_input_volume(index, cvolume)
 
     def update(self):
         print "\a"
