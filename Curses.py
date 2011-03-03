@@ -8,7 +8,7 @@ class Curses():
         self.counter = 0
         self.screen = None
 
-        self.modes = [ ScreenHelp(), ScreenSink(), ScreenClients() ]
+        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients() ]
 
         self.active_mode = 1
 
@@ -90,5 +90,5 @@ class Curses():
         curses.endwin()
 
 from screens.ScreenHelp import ScreenHelp
-from screens.ScreenSink import ScreenSink
+from screens.ScreenSinks import ScreenSinks
 from screens.ScreenClients import ScreenClients

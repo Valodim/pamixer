@@ -10,7 +10,7 @@ state_colors[PA_SINK_RUNNING] = 3
 state_colors[PA_SINK_SUSPENDED] = 4
 state_colors[PA_SINK_IDLE] = 1
 
-class ScreenSink():
+class ScreenSinks():
 
     def __init__(self):
 
