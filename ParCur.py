@@ -88,7 +88,7 @@ class ParCur():
 
             self.pa_clients[index] = Client(index, struct, proplist)
         else:
-            self.pa_clients[index].update(struct, proplist)
+            self.pa_clients[index].update(index, struct, proplist)
             self.__print("changed client: ", "index:")
 
         # and update view
