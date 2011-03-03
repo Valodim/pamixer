@@ -45,7 +45,7 @@ class SinkInput():
         gauge.border()
 
         win.move(23, 4)
-        win.addstr(center(par.pa_clients[self.client].name, 12))
+        win.addstr(center(par.pa_clients[self.client].clean_name, 12), curses.color_pair(2) if par.pa_clients[self.client].clean_name != par.pa_clients[self.client].name else 0)
         win.move(24, 3)
         win.addstr(center(self.name, 12), curses.A_BOLD if active else 0)
 
