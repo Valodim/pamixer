@@ -8,7 +8,7 @@ class Curses():
         self.counter = 0
         self.screen = None
 
-        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients() ]
+        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenScripts() ]
 
         self.active_mode = 1
 
@@ -64,7 +64,9 @@ class Curses():
         self.screen.addstr("2", curses.A_BOLD)
         self.screen.addstr(":Sinks  ")
         self.screen.addstr("3", curses.A_BOLD)
-        self.screen.addstr(":Clients")
+        self.screen.addstr(":Clients  ")
+        self.screen.addstr("4", curses.A_BOLD)
+        self.screen.addstr(":Scripts")
         self.screen.attron(curses.color_pair(2))
         self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
         self.screen.attroff(curses.color_pair(2))
@@ -92,3 +94,4 @@ class Curses():
 from screens.ScreenHelp import ScreenHelp
 from screens.ScreenSinks import ScreenSinks
 from screens.ScreenClients import ScreenClients
+from screens.ScreenScripts import ScreenScripts
