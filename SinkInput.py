@@ -42,19 +42,24 @@ class SinkInput():
         gauge = win.derwin(22, self.channels+2, 0, 8-(self.channels/2))
         for i in range(0, self.channels):
             barheight = min(22, int(self.volume[i] * 18))
-            # lowest nine
+            # lowest eight
             if barheight > 0:
                 gauge.attron(curses.color_pair(3))
-                gauge.vline(21-min(9, barheight), i+1, curses.ACS_BLOCK, min(9, barheight))
+                gauge.vline(21-min(8, barheight), i+1, curses.ACS_BLOCK, min(8, barheight))
                 gauge.attroff(curses.color_pair(3))
-            # mid eight
-            if barheight > 9:
-                gauge.vline(12-min(8, barheight-9), i+1, curses.ACS_BLOCK, min(8, barheight-9))
-            # top three (clipping!)
-            if barheight > 17:
+            # mid seven
+            if barheight > 8:
+                gauge.vline(13-min(7, barheight-8), i+1, curses.ACS_BLOCK, min(7, barheight-8))
+            # top three
+            if barheight > 15:
                 gauge.attron(curses.color_pair(6))
-                gauge.vline(4-min(3, barheight-17), i+1, curses.ACS_BLOCK, min(3, barheight-17))
+                gauge.vline(6-min(3, barheight-15), i+1, curses.ACS_BLOCK, min(3, barheight-15))
                 gauge.attroff(curses.color_pair(6))
+            # over the top (clipping and stuff)
+            if barheight > 18:
+                gauge.attron(curses.color_pair(2))
+                gauge.vline(3-min(3, barheight-18), i+1, curses.ACS_BLOCK, min(3, barheight-18))
+                gauge.attroff(curses.color_pair(2))
         gauge.border()
 
         win.move(23, 4)
