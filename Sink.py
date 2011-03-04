@@ -1,6 +1,6 @@
 import curses 
 
-from pulseaudio.PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
+from PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 from CursesHelpers import *
 
 state_names = { }

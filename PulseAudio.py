@@ -1,4 +1,4 @@
-from lib_pulseaudio import *
+from pulseaudio.lib_pulseaudio import *
 import sys 
 import os
 import ctypes

@@ -7,7 +7,7 @@ import sys
 import shutil
 from xml.dom.minidom import *
 
-from pulseaudio.PulseAudio import PulseAudio 
+from PulseAudio import PulseAudio 
 
 class ParCur():
 
