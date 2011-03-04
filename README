@@ -18,3 +18,5 @@ TODO:
  - more and better structured info
  - bugs, bugs, bugs
 
+The bindings were made for pulseaudio 0.9.22, so they probably crash
+and burn for older versions.
