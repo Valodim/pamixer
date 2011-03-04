@@ -14,6 +14,12 @@ class ScreenHelp():
 
         self.whelp = win.derwin(1, 1)
 
+        maxy, maxx = self.whelp.getmaxyx()
+
+        # enable scrolling
+        self.whelp.scrollok(1)
+        self.whelp.setscrreg(0, maxy-1)
+
         # initial redraw
         self.redraw()
 

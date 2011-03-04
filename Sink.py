@@ -61,18 +61,19 @@ class Sink():
 
         maxy, maxx = win.getmaxyx()
 
-        win.attron(curses.color_pair(2))
-        win.hline(32, 0, curses.ACS_HLINE, maxx)
-        win.vline(32, 45, curses.ACS_VLINE, maxy)
-        win.addch(32, 45, curses.ACS_TTEE)
-        win.attroff(curses.color_pair(2))
+        if maxy > 32:
+            win.attron(curses.color_pair(2))
+            win.hline(32, 0, curses.ACS_HLINE, maxx)
+            win.vline(32, 45, curses.ACS_VLINE, maxy)
+            win.addch(32, 45, curses.ACS_TTEE)
+            win.attroff(curses.color_pair(2))
 
         win.refresh()
 
         self.wcontrols = win.derwin(30, maxx, 1, 0)
 
-        self.winfol = win.derwin(15, 41, 33, 2)
-        self.winfor = win.derwin(33, 48)
+        self.winfol = win.derwin(15, 41, 33, 2) if maxy > 33 else None
+        self.winfor = win.derwin(33, 48) if maxy > 33 else None
 
         self.redraw()
 

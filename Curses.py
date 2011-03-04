@@ -58,7 +58,7 @@ class Curses():
 
         elif event == ord("u"):
             par.use_dezibel = not par.use_dezibel
-            return True
+            return False
 
         elif event == curses.KEY_LEFT:
             event = ord('h')
@@ -93,22 +93,23 @@ class Curses():
 
         self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
 
-        self.subscreen = self.screen.subwin(2, 0)
+        self.subscreen = self.screen.derwin(2, 0)
         self.update()
 
         while True:
+            # anything happen?
             event = self.screen.getch()
-            if event == -1:
-                self.update()
-                continue
 
+            # maybe it's an event on the lower layers?
             if self.keyevent(event):
                 continue
 
-            self.update()
             # end of program, just break out
             if event == ord("q"):
                 break
+
+            # no char hit? well, at least redraw..
+            self.update()
 
         curses.endwin()
 
