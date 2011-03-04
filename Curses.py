@@ -74,13 +74,15 @@ class Curses():
 
     def run(self):
 
-        self.screen = curses.initscr()
-        curses.start_color()
-        curses.use_default_colors()
+        # wrap it up, so that errors don't screw up the terminal
+        curses.wrapper(self.run2)
 
-        curses.noecho()
+    def run2(self, stdscr):
+
+        self.screen = stdscr
+
+        curses.use_default_colors()
         curses.curs_set(0)
-        self.screen.keypad(1)
 
         curses.init_pair(1, -1, -1);
         curses.init_pair(2, curses.COLOR_YELLOW, -1);
