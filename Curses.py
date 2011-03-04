@@ -94,6 +94,9 @@ class Curses():
                 self.update()
                 continue
 
+            if event == ord("u"):
+                par.use_dezibel = not par.use_dezibel
+
             if self.keyevent(event):
                 continue
 
@@ -109,3 +112,5 @@ from screens.ScreenSinks import ScreenSinks
 from screens.ScreenClients import ScreenClients
 from screens.ScreenScripts import ScreenScripts
 from screens.ScreenSamples import ScreenSamples
+
+from ParCur import par

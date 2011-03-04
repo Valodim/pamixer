@@ -38,6 +38,9 @@ class ParCur():
         self.pa_sink_inputs = {}
         self.pa_outputs = {}
 
+        # whether to use dB or linear for numeric volume display
+        self.use_dezibel = True
+
     def run(self):
         self.pa = PulseAudio(self.on_init, self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change, self.on_new_sample, self.on_remove_sample)
 

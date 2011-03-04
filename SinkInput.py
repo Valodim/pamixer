@@ -67,8 +67,12 @@ class SinkInput():
         win.move(24, 3)
         win.addstr(center(self.name, 13), curses.A_BOLD if active else 0)
         win.move(25, 5)
-        volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
-        win.addstr(right('{:+03.2f}'.format(volume_db_avg) + " dB", 9))
+        if par.use_dezibel:
+            volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
+            win.addstr(right('{:+03.2f}'.format(volume_db_avg) + " dB", 9))
+        else:
+            volume_avg = round(sum(self.volume) / len(self.volume), 2)
+            win.addstr(right('{:03.2f}'.format(volume_avg * 100) + " %", 9))
 
     def draw_info(self, win):
         win.move(0, 2)

@@ -118,8 +118,12 @@ class Sink():
         wcontrols.move(26, 4)
         wcontrols.addstr("Sink Volume", curses.A_BOLD if self.cursor == -1 else 0)
         wcontrols.move(27, 5)
-        volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
-        wcontrols.addstr(right('{:+03.2f}'.format(volume_db_avg) + " dB", 9))
+        if par.use_dezibel:
+            volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
+            wcontrols.addstr(right('{:+03.2f}'.format(volume_db_avg) + " dB", 9))
+        else:
+            volume_avg = round(sum(self.volume) / len(self.volume), 2)
+            wcontrols.addstr(right('{:03.2f}'.format(volume_avg * 100) + " %", 9))
 
         inputs = par.get_sink_inputs_by_sink(self.index)
         i = 0
