@@ -132,19 +132,31 @@ class Client():
             return True
 
         elif event == ord('n'):
-            if self.cursor == -1:
-                self.setVolume(1.0)
-            else:
+            if self.cursor >= 0:
                 par.get_sink_inputs_by_client(self.index)[self.cursor].setVolume(1.0)
 
             self.draw_controls()
             return True
 
+        elif event == ord('N'):
+            sink_inputs = par.get_sink_inputs_by_client(self.index)
+            for sink_input in sink_inputs:
+                sink_input.setVolume(1.0)
+
+            self.draw_controls()
+            return True
+
         elif event == ord('m'):
-            if self.cursor == -1:
-                self.setVolume(0.0)
-            else:
+            if self.cursor >= 0:
                 par.get_sink_inputs_by_client(self.index)[self.cursor].setVolume(0.0)
+
+            self.draw_controls()
+            return True
+
+        elif event == ord('M'):
+            sink_inputs = par.get_sink_inputs_by_client(self.index)
+            for sink_input in sink_inputs:
+                sink_input.setVolume(0.0)
 
             self.draw_controls()
             return True

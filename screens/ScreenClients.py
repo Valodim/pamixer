@@ -135,8 +135,10 @@ class ScreenClients():
        j / Down\t\t: Volume Down
        K\t\t: Volume Up, ignore soft limit
        J\t\t: Volume Down, ignore soft limit
-       n\t\t: Set Volume to 1.0
-       m\t\t: Set Volume to 0.0 (Mute)
+       n\t\t: Set selected volume to 1.0
+       m\t\t: Set selected volume to 0.0 (Mute)
+       N\t\t: Set all volumes to 1.0
+       M\t\t: Set all volumes to 0.0 (Mute)
 
        X\t\t: Kill Sink Input
 
