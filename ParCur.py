@@ -44,8 +44,8 @@ class ParCur():
         self.volume_max_soft = 1.00
         self.volume_max_hard = 1.50
 
-    def run(self):
-        self.pa = PulseAudio(self.on_init, self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change, self.on_new_sample, self.on_remove_sample)
+    def run(self, init_cb, server = None):
+        self.pa = PulseAudio(init_cb, self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change, self.on_new_sample, self.on_remove_sample, server)
 
         # set some helper functions
         self.volume_to_linear = self.pa.volume_to_linear

@@ -25,7 +25,7 @@ def null_cb(a=None, b=None, c=None, d=None):
     return
 
 class PulseAudio():
-    def __init__(self, init_cb, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, volume_change_cb, new_sample_cb, remove_sample_cb):
+    def __init__(self, init_cb, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, volume_change_cb, new_sample_cb, remove_sample_cb, server = None):
 
         self.sinks = {}
         self.monitor_sinks = []
@@ -50,7 +50,7 @@ class PulseAudio():
         self._context = pa_context_new(self.pa_mainloop_api, "parcur client")
         self._context_notify_cb = pa_context_notify_cb_t(self.context_notify_cb)
         pa_context_set_state_callback(self._context, self._context_notify_cb, None)
-        pa_context_connect(self._context, None, 0, None);
+        pa_context_connect(self._context, server, 0, None);
 
         pa_threaded_mainloop_start(self.pa_mainloop)
 
