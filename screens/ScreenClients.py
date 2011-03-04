@@ -37,6 +37,7 @@ class ScreenClients():
 
         # print the active client
         if len(par.pa_clients) > 0:
+            # reset if invalid
             if self.active_client == -1 or self.active_client >= len(par.pa_clients):
                 self.active_client = 0
             # show some controls

@@ -92,7 +92,7 @@ class Sink():
         wcontrols.erase()
 
         # gauge, one bar for each channel
-        gauge = wcontrols.derwin(22, self.channels+2, 2, 8-(self.channels/2))
+        gauge = wcontrols.derwin(22, self.channels+2, 2, 10-(self.channels/2))
         for i in range(0, self.channels):
             barheight = min(22, int(self.volume[i] * 18))
             # lowest eight
@@ -115,9 +115,9 @@ class Sink():
                 gauge.attroff(curses.color_pair(2))
         gauge.border()
 
-        wcontrols.move(26, 4)
+        wcontrols.move(26, 6)
         wcontrols.addstr("Sink Volume", curses.A_BOLD if self.cursor == -1 else 0)
-        wcontrols.move(27, 5)
+        wcontrols.move(27, 7)
         if par.use_dezibel:
             volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
             wcontrols.addstr(right('{:+03.2f}'.format(volume_db_avg) + " dB", 9))
@@ -128,7 +128,7 @@ class Sink():
         inputs = par.get_sink_inputs_by_sink(self.index)
         i = 0
         for input in inputs:
-            input.draw_control(wcontrols.derwin(2, 20 + i*20), self.cursor == i)
+            input.draw_control(wcontrols.derwin(2, 22 + i*20), self.cursor == i)
             i += 1
 
         wcontrols.refresh()

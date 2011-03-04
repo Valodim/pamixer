@@ -39,7 +39,9 @@ class ScreenSinks():
 
         # print the active sink
         if len(par.pa_sinks) > 0:
-            self.active_sink = 0
+            # reset if invalid
+            if self.active_sink == -1 or self.active_sink >= len(par.pa_sinks):
+                self.active_sink = 0
             # show some controls
             par.pa_sinks[self.active_sink].layout(self.wactivesink)
 
