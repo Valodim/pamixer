@@ -22,8 +22,6 @@ class ScreenClients():
         self.win = None
         self.wclientlist = None
 
-        # 0 = 
-        self.mode = MODE_NORMAL
         return
 
     def layout(self, win):
@@ -39,7 +37,8 @@ class ScreenClients():
 
         # print the active client
         if len(par.pa_clients) > 0:
-            self.active_client = 0
+            if self.active_client == -1 or self.active_client >= len(par.pa_clients):
+                self.active_client = 0
             # show some controls
             par.pa_clients.values()[self.active_client].layout(self.wactiveclient)
 
