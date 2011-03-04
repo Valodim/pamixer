@@ -196,7 +196,7 @@ class ParCur():
         sys.stdout.flush()
         # return
         if self.cur:
-            self.cur.redraw()
+            self.cur.update()
 
     def __print(self, *args):
         sys.stderr.write(str(args))
