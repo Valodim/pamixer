@@ -43,7 +43,7 @@ class ScreenSinks():
             if self.active_sink == -1 or self.active_sink >= len(par.pa_sinks):
                 self.active_sink = 0
             # show some controls
-            par.pa_sinks[self.active_sink].layout(self.wactivesink)
+            par.pa_sinks.values()[self.active_sink].layout(self.wactivesink)
 
         # initial redraw
         self.redraw()
@@ -54,7 +54,7 @@ class ScreenSinks():
 
         if self.active_sink == -1 and len(par.pa_sinks) > 0:
             self.active_sink = 0
-            par.pa_sinks[self.active_sink].layout(self.wactivesink)
+            par.pa_sinks.values()[self.active_sink].layout(self.wactivesink)
 
         i = 0
         inputcount = { }
@@ -82,8 +82,8 @@ class ScreenSinks():
 
             i += 1
 
-        if recurse and self.active_sink in par.pa_sinks:
-            par.pa_sinks[self.active_sink].redraw(True)
+        if recurse and self.active_sink in par.pa_sinks.values():
+            par.pa_sinks.values()[self.active_sink].redraw(True)
 
         wsinklist.refresh()
 
@@ -93,20 +93,22 @@ class ScreenSinks():
         if self.mode == MODE_NORMAL:
 
             # cheating a little here, don't allow move on the own volume
-            if event == ord("M") and par.pa_sinks[self.active_sink].cursor >= 0:
+            if event == ord("M") and par.pa_sinks.values()[self.active_sink].cursor >= 0:
                 self.mode = MODE_MOVE
                 return True
 
             # sink range
-            for i in range(0, len(self.sinkchars)):
-                if event == ord(self.sinkchars[i]) and par.pa_sinks.has_key(i):
-                    par.pa_sinks[self.active_sink].layout(None)
+            for i in range(0, min(len(self.sinkchars), len(par.pa_sinks))):
+                if event == ord(self.sinkchars[i]):
+                    if self.active_sink == i:
+                        return True
+                    par.pa_sinks.values()[self.active_sink].layout(None)
                     self.active_sink = i
-                    par.pa_sinks[self.active_sink].layout(self.wactivesink)
+                    par.pa_sinks.values()[self.active_sink].layout(self.wactivesink)
                     self.redraw()
                     return True
 
-            return par.pa_sinks[self.active_sink].key_event(event)
+            return par.pa_sinks.values()[self.active_sink].key_event(event)
 
         elif self.mode == MODE_MOVE:
 
@@ -114,7 +116,7 @@ class ScreenSinks():
             for i in range(0, len(self.sinkchars)):
                 if event == ord(self.sinkchars[i]) and par.pa_sinks.has_key(i):
                     # tell the sink to move this thing around
-                    par.pa_sinks[self.active_sink].moveInput(i)
+                    par.pa_sinks.values()[self.active_sink].moveInput(i)
                     # return to normal mode
                     self.mode = MODE_NORMAL
                     return False

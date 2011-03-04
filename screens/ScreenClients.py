@@ -97,8 +97,10 @@ class ScreenClients():
                 # return True
 
             # sink range
-            for i in range(0, max(len(par.pa_clients), len(self.clientchars))):
+            for i in range(0, min(len(par.pa_clients), len(self.clientchars))):
                 if event == ord(self.clientchars[i]):
+                    if self.active_client == i:
+                        return True
                     par.pa_clients.values()[self.active_client].layout(None)
                     self.active_client = i
                     par.pa_clients.values()[self.active_client].layout(self.wactiveclient)
