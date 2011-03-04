@@ -6,9 +6,6 @@ from Curses import Curses
 
 if __name__ == '__main__':
 
-    def init_cb():
-        par.on_init()
-
     server = None
     if len(sys.argv) > 1 and sys.argv[1] == '--server':
         server = sys.argv[2]
@@ -20,7 +17,7 @@ if __name__ == '__main__':
 
     # ok now we update
     par.cur = cur
-    par.run(init_cb, server)
+    par.run(server)
 
     # and run
     cur.run()

@@ -56,7 +56,11 @@ class Curses():
             self.active_mode = event - ord('1')
             return False
 
-        if event == curses.KEY_LEFT:
+        elif event == ord("u"):
+            par.use_dezibel = not par.use_dezibel
+            return True
+
+        elif event == curses.KEY_LEFT:
             event = ord('h')
         elif event == curses.KEY_DOWN:
             event = ord('j')
@@ -90,16 +94,13 @@ class Curses():
         self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
 
         self.subscreen = self.screen.subwin(2, 0)
-        self.redraw()
+        self.update()
 
         while True:
             event = self.screen.getch()
             if event == -1:
                 self.update()
                 continue
-
-            if event == ord("u"):
-                par.use_dezibel = not par.use_dezibel
 
             if self.keyevent(event):
                 continue
