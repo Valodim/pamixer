@@ -121,4 +121,26 @@ class ScreenSinks():
 
         return False
 
+    def draw_help(self, win):
+        win.attron(curses.A_BOLD)
+        win.addstr("  Keys - Sinks\n")
+        win.addstr("-----------------------------------------")
+        win.attroff(curses.A_BOLD)
+        win.addstr("""
+       h / Left\t\t: Move Cursor left
+       l / Right\t: Move Cursor right
+
+       k / Up\t\t: Volume Up
+       j / Down\t\t: Volume Down
+       K\t\t: Volume Up, ignore soft limit
+       J\t\t: Volume Down, ignore soft limit
+       n\t\t: Set Volume to 1.0
+       m\t\t: Set Volume to 0.0 (Mute)
+
+       X\t\t: Kill Sink Input
+       M [werty]\t: Move Sink Input to Sink by char
+
+
+""")
+
 from ParCur import par

@@ -8,8 +8,14 @@ class Curses():
         self.counter = 0
         self.screen = None
 
+        # initialize modes
         self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenScripts(), ScreenSamples() ]
 
+        # append help messages from modes. ScreenHelp has global help, too!
+        for i in range(0, len(self.modes)):
+            self.modes[0].helps.append(self.modes[i].draw_help)
+
+        # start at the  sink screen
         self.active_mode = 1
 
     def update(self):
@@ -81,9 +87,7 @@ class Curses():
 
         maxy, maxx = self.screen.getmaxyx()
 
-        self.screen.attron(curses.color_pair(2))
         self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
-        self.screen.attroff(curses.color_pair(2))
 
         self.subscreen = self.screen.subwin(2, 0)
         self.redraw()

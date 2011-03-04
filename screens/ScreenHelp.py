@@ -1,29 +1,60 @@
 import curses 
 
+import sys
+
 class ScreenHelp():
     def __init__(self):
+
+        self.helps = []
+
         return
 
     def layout(self, win):
         self.win = win
 
+        self.whelp = win.derwin(1, 1)
+
         # initial redraw
         self.redraw()
 
     def redraw(self, recurse = False):
-        if self.win is None:
+        if self.whelp is None:
             return
 
-        win = self.win
+        whelp = self.whelp
 
-        win.erase()
-        win.move(3, 7)
+        whelp.erase()
+        whelp.move(0, 0)
 
-        win.addstr("Hello, World!")
+        whelp.attron(curses.color_pair(2))
 
-        win.refresh()
+        for help in self.helps:
+            help(whelp)
+
+        whelp.attroff(curses.color_pair(2))
+
+        whelp.refresh()
 
         return
 
     def key_event(self, event):
         return False
+
+    def draw_help(self, win):
+        win.attron(curses.A_BOLD)
+        win.addstr("  Keys - Global\n")
+        win.addstr("-----------------------------------------")
+        win.attroff(curses.A_BOLD)
+        win.addstr("""
+       q\t\t: Quit
+
+       1\t\t: Show Help
+       2\t\t: Show Sinks
+       3\t\t: Show Clients
+       4\t\t: Show Scripts
+       5\t\t: Show Samples
+
+       u\t\t: Switch volume unit dB / Percent
+
+
+""")

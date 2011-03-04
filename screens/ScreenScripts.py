@@ -113,4 +113,7 @@ class ScreenScripts():
 
         return False
 
+    def draw_help(self, win):
+        pass
+
 from ParCur import par
