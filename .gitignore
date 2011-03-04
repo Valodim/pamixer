@@ -42,3 +42,5 @@ version.rc
 Thumbs.db
 
 *.pyc
+
+stderr

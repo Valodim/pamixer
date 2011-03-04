@@ -1,0 +1,3 @@
+.nofail
+load-module module-tunnel-sink server=fairycake sink_name=fairycake
+.fail

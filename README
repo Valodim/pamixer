@@ -1,0 +1,20 @@
+
+This is a curses interface for pulseaudio.
+
+It is far from complete, but it's already very useful to conveniently
+move around sink inputs, and adjust volume levels individually.
+
+What's working:
+ - event handling
+ - some info displayed
+ - volume of sinks and sink inputs
+ - moving sink inputs around
+
+TODO:
+ - robustnes of ui, probably tons of curses newbie mistakes in there
+ - finish script execution
+ - more sample management
+ - work with channels
+ - more and better structured info
+ - bugs, bugs, bugs
+
