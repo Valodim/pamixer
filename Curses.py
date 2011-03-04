@@ -4,9 +4,11 @@ import sys
 
 class Curses():
 
-    def __init__(self):
+    def __init__(self, verbose = False):
         self.counter = 0
         self.screen = None
+
+        self.verbose = verbose
 
         # initialize modes
         self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenScripts(), ScreenSamples() ]

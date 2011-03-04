@@ -181,7 +181,8 @@ class ParCur():
             self.cur.update()
 
     def __print(self, *args):
-        sys.stderr.write(str(args))
+        if self.cur and self.cur.verbose:
+            sys.stderr.write(str(args))
         return
 
 par = ParCur()
