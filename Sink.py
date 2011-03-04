@@ -188,7 +188,7 @@ class Sink():
             if self.cursor == -1:
                 self.changeVolume(event == ord('k') or event == ord('K'), event == ord('K') or event == ord('J'))
             else:
-                par.get_sink_inputs_by_sink(self.index)[self.cursor].changeVolume(event == ord('k'), event == ord('K') or event == ord('J'))
+                par.get_sink_inputs_by_sink(self.index)[self.cursor].changeVolume(event == ord('k') or event == ord('K'), event == ord('K') or event == ord('J'))
 
             self.draw_controls()
             return True
@@ -218,8 +218,9 @@ class Sink():
             self.draw_controls()
             return True
 
-    def setVolume(self, value):
+    def setVolume(self, value, hard = False):
         volume = []
+        value = max(0.0, min(par.volume_max_hard if hard else par.volume_max_soft, value))
         for i in range(0, len(self.volume)):
             volume.append(value)
         par.set_sink_volume(self.index, volume)

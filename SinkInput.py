@@ -88,7 +88,7 @@ class SinkInput():
 
     def setVolume(self, value, hard = False):
         volume = []
-        value = max(0.0, par.volume_max_hard if hard else par.volume_max_soft, min(value))
+        value = max(0.0, min(par.volume_max_hard if hard else par.volume_max_soft, value))
         for i in range(0, len(self.volume)):
             volume.append(value)
         par.set_sink_input_volume(self.index, volume)
