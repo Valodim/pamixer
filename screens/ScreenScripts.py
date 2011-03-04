@@ -101,8 +101,8 @@ class ScreenScripts():
         self.cursorCheck()
 
         # change focus
-        if event == curses.KEY_UP or event == curses.KEY_DOWN:
-            self.cursor += -1 if event == curses.KEY_UP else +1
+        if event == ord('k') or event == ord('j'):
+            self.cursor += -1 if event == ord('k') else +1
             # cursorCheck happens here, too!
             self.redraw()
             return True
