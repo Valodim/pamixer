@@ -117,16 +117,16 @@ class Client():
         self.cursorCheck()
 
         # change focus
-        if event == curses.KEY_LEFT or event == curses.KEY_RIGHT:
-            self.cursor += -1 if event == curses.KEY_LEFT else +1
+        if event == ord('h') or event == ord('l'):
+            self.cursor += -1 if event == ord('h')  else +1
             # cursorCheck happens here, too!
             self.draw_controls()
             self.draw_info()
             return True
 
-        elif event == curses.KEY_UP or event == curses.KEY_DOWN:
+        elif event in [ ord('k'), ord('K'), ord('j'), ord('J') ]:
             if self.cursor >= 0:
-                par.get_sink_inputs_by_client(self.index)[self.cursor].changeVolume(event == curses.KEY_UP)
+                par.get_sink_inputs_by_client(self.index)[self.cursor].changeVolume(event == ord('k') or event == ord('K'), event == ord('K') or event == ord('J'))
 
             self.draw_controls()
             return True
@@ -145,6 +145,13 @@ class Client():
                 self.setVolume(0.0)
             else:
                 par.get_sink_inputs_by_client(self.index)[self.cursor].setVolume(0.0)
+
+            self.draw_controls()
+            return True
+
+        elif event == ord('X'):
+            if self.cursor >= 0:
+                par.get_sink_inputs_by_client(self.index)[self.cursor].kill()
 
             self.draw_controls()
             return True

@@ -177,18 +177,18 @@ class Sink():
     def key_event(self, event):
 
         # change focus
-        if event == curses.KEY_LEFT or event == curses.KEY_RIGHT:
-            self.cursor += -1 if event == curses.KEY_LEFT else +1
+        if event == ord('h') or event == ord('l'):
+            self.cursor += -1 if event == ord('h') else +1
             # cursorCheck happens here, too!
             self.draw_controls()
             self.draw_info()
             return True
 
-        elif event == curses.KEY_UP or event == curses.KEY_DOWN:
+        elif event in [ ord('k'), ord('K'), ord('j'), ord('J') ]:
             if self.cursor == -1:
-                self.changeVolume(event == curses.KEY_UP)
+                self.changeVolume(event == ord('k') or event == ord('K'), event == ord('K') or event == ord('J'))
             else:
-                par.get_sink_inputs_by_sink(self.index)[self.cursor].changeVolume(event == curses.KEY_UP)
+                par.get_sink_inputs_by_sink(self.index)[self.cursor].changeVolume(event == ord('k'), event == ord('K') or event == ord('J'))
 
             self.draw_controls()
             return True
@@ -211,7 +211,7 @@ class Sink():
             self.draw_controls()
             return True
 
-        elif event == ord('K'):
+        elif event == ord('X'):
             if self.cursor >= 0:
                 par.get_sink_inputs_by_sink(self.index)[self.cursor].kill()
 
@@ -224,10 +224,10 @@ class Sink():
             volume.append(value)
         par.set_sink_volume(self.index, volume)
 
-    def changeVolume(self, up):
+    def changeVolume(self, up, hard = False):
         volume = []
         for i in range(0, len(self.volume)):
-            volume.append(max(0.0, min(1.2, self.volume[i] + (+0.075 if up else -0.075))))
+            volume.append(max(0.0, min(par.volume_max_hard if hard else par.volume_max_soft, self.volume[i] + (par.volume_step if up else -par.volume_step))))
         par.set_sink_volume(self.index, volume)
 
     def moveInput(self, index):

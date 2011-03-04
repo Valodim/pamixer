@@ -50,14 +50,14 @@ class Curses():
             self.active_mode = event - ord('1')
             return False
 
-        if event == ord('h'):
-            event = curses.KEY_LEFT
-        elif event == ord('j'):
-            event = curses.KEY_DOWN
-        elif event == ord('k'):
-            event = curses.KEY_UP
-        elif event == ord('l'):
-            event = curses.KEY_RIGHT
+        if event == curses.KEY_LEFT:
+            event = ord('h')
+        elif event == curses.KEY_DOWN:
+            event = ord('j')
+        elif event == curses.KEY_UP:
+            event = ord('k')
+        elif event == curses.KEY_RIGHT:
+            event = ord('l')
 
         # nothing here? ok, allow active mode to parse
         return self.modes[self.active_mode].key_event(event)

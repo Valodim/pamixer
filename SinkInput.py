@@ -86,16 +86,17 @@ class SinkInput():
     def kill(self):
         par.kill_sink_input(self.index)
 
-    def setVolume(self, value):
+    def setVolume(self, value, hard = False):
         volume = []
+        value = max(0.0, par.volume_max_hard if hard else par.volume_max_soft, min(value))
         for i in range(0, len(self.volume)):
             volume.append(value)
         par.set_sink_input_volume(self.index, volume)
 
-    def changeVolume(self, up):
+    def changeVolume(self, up, hard = False):
         volume = []
         for i in range(0, len(self.volume)):
-            volume.append(max(0.0, min(1.0, self.volume[i] + (+0.075 if up else -0.075))))
+            volume.append(max(0.0, min(par.volume_max_hard if hard else par.volume_max_soft, self.volume[i] + (par.volume_step if up else -par.volume_step))))
         par.set_sink_input_volume(self.index, volume)
 
 from ParCur import par
