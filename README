@@ -18,5 +18,10 @@ TODO:
  - more and better structured info
  - bugs, bugs, bugs
 
+The lib_pulseaudio bindings come from a seperate repository as a submodule, to
+automatically clone these and track do:
+  git submodule init
+  git submodule update
+
 The bindings were made for pulseaudio 0.9.22, so they probably crash
 and burn for older versions.
