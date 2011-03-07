@@ -66,6 +66,9 @@ class SinkInput(SubVolume):
         volume = self.getChangeVolume(up, hard, channels)
         par.set_sink_input_volume(self.index, volume)
 
+    def still_exists(self):
+        return self.index in par.pa_sink_inputs
+
 """
 ('index', c_uint32),
 ('name', c_char_p),

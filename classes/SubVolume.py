@@ -180,3 +180,8 @@ class SubVolume(object):
                 volume.append(self.volume[i])
 
         return volume
+
+    def still_exists(self):
+        """ Needs to be overridden! This returns false if the underlying
+            volume instance no longer exists. """
+        return False

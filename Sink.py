@@ -243,6 +243,9 @@ class Sink(SubVolume):
             return self
         return par.get_sink_inputs_by_sink(self.index)[self.cursor]
 
+    def still_exists(self):
+        return self.index in par.pa_sinks
+
     """
     ('name', STRING),
     ('index', uint32_t),

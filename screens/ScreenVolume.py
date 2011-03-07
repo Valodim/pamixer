@@ -28,10 +28,23 @@ class ScreenVolume():
             self.wcontrols.addstr("No such volume control!")
 
     def redraw(self, recurse = False):
-        self.active_volume.redraw_volume()
+        self.check_volume()
+        if self.active_volume is not None:
+            self.active_volume.redraw_volume()
+        else:
+            self.wcontrols.erase()
+            self.wcontrols.addstr("No such volume control!")
+            self.wcontrols.refresh()
 
     def key_event(self, event):
-        return self.active_volume.key_event_volume(event)
+        self.check_volume()
+        if self.active_volume is not None:
+            return self.active_volume.key_event_volume(event)
+
+    def check_volume(self):
+        if self.active_volume is not None:
+            if not self.active_volume.still_exists():
+                self.active_volume = None
 
     def setActiveVolume(self, volume):
         """ Set a new active sink input (will not redraw itself!) """
