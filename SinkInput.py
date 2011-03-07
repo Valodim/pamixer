@@ -121,6 +121,13 @@ class SinkInput():
             return True
 
         elif event == ord('m'):
+            self.cursorCheck()
+            self.setVolume(0.0, False, [ self.cursor ])
+
+            self.draw_all_controls()
+            return True
+
+        elif event == ord('M'):
             self.setVolume(0.0)
 
             self.draw_all_controls()
