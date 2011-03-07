@@ -55,21 +55,21 @@ class Curses():
 
     def keyevent(self, event):
 
-        if ord('1') <= event <= ord(str(len(self.modes))):
+        # go to a different screen
+        # right side is < because the last screen, ScreenSinkInput, cannot be chosen this way!
+        if ord('1') <= event < ord(str(len(self.modes))):
             self.last_mode = self.active_mode
             self.active_mode = event - ord('1')
             return False
 
+        # return to last mode
         elif event == curses.KEY_BACKSPACE:
             self.active_mode = self.last_mode
             return False
 
+        # switch between dezibel and percent
         elif event == ord("u"):
             par.use_dezibel = not par.use_dezibel
-            return False
-
-        elif event == ord('s'):
-            sys.stderr.write(str(self.modes[self.active_mode].__class__.__dict__))
             return False
 
         # enter key is unreliable
@@ -88,6 +88,7 @@ class Curses():
                 self.active_mode = self.last_mode
                 return False
 
+        # fix for vim keybindings
         elif event == curses.KEY_LEFT:
             event = ord('h')
         elif event == curses.KEY_DOWN:

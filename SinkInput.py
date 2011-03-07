@@ -202,8 +202,6 @@ class SinkInput():
             else:
                 volume.append(self.volume[i])
 
-        sys.stderr.write(str(volume))
-
         par.set_sink_input_volume(self.index, volume)
 
 from ParCur import par
