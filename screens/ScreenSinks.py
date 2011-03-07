@@ -51,9 +51,6 @@ class ScreenSinks():
             # show some controls
             par.pa_sinks.values()[self.active_sink].layout(self.wactivesink)
 
-        # initial redraw
-        self.redraw()
-
     def redraw(self, recurse = False):
         if self.wsinklist is None:
             return
@@ -88,10 +85,10 @@ class ScreenSinks():
 
             i += 1
 
-        if recurse and self.active_sink in par.pa_sinks.values():
-            par.pa_sinks.values()[self.active_sink].redraw(True)
-
         wsinklist.refresh()
+
+        if recurse and self.active_sink >= 0 and self.active_sink < len(par.pa_sinks):
+            par.pa_sinks.values()[self.active_sink].redraw(True)
 
         return
 

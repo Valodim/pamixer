@@ -27,12 +27,9 @@ class ScreenSinkInput():
         else:
             self.wcontrols.addstr("No such sink input!")
 
-        self.redraw()
-        return
-
     def redraw(self, recurse = False):
-        return par.pa_sink_inputs[self.active_sink_input].redraw()
-        return
+        if recurse:
+            par.pa_sink_inputs[self.active_sink_input].redraw()
 
     def key_event(self, event):
         return par.pa_sink_inputs[self.active_sink_input].key_event(event)

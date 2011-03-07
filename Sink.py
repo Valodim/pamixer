@@ -71,8 +71,6 @@ class Sink():
         self.winfol = win.derwin(15, 45, 33, 2) if maxy > 33 else None
         self.winfor = win.derwin(33, 52) if maxy > 33 else None
 
-        self.redraw()
-
     def redraw(self, recurse = False):
         self.draw_controls()
         self.draw_info()

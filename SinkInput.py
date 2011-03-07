@@ -52,7 +52,6 @@ class SinkInput():
             return
 
         self.wcontrols = win.derwin(4, 6)
-        self.redraw()
 
     def redraw(self, recurse = False):
         self.draw_all_controls()
@@ -84,7 +83,7 @@ class SinkInput():
             else:
                 wcontrols.addstr(('{:3.2f}'.format(self.volume[i] * 100) + " %").rjust(9))
 
-        self.wcontrols.refresh()
+        wcontrols.refresh()
 
     def cursorCheck(self):
         while self.cursor >= self.channels:

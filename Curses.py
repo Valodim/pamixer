@@ -60,11 +60,13 @@ class Curses():
         if ord('1') <= event < ord(str(len(self.modes))):
             self.last_mode = self.active_mode
             self.active_mode = event - ord('1')
+            self.update()
             return False
 
         # return to last mode
         elif event == curses.KEY_BACKSPACE:
             self.active_mode = self.last_mode
+            self.update()
             return False
 
         # switch between dezibel and percent
