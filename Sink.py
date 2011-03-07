@@ -243,6 +243,12 @@ class Sink():
         # move the selected sink input to the new sink
         par.move_sink_input(sink_inputs[self.cursor].index, index)
 
+    def getActiveSinkInput(self):
+        self.cursorCheck()
+        if self.cursor == -1:
+            return None
+        return par.get_sink_inputs_by_sink(self.index)[self.cursor]
+
     """
     ('name', STRING),
     ('index', uint32_t),

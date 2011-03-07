@@ -11,7 +11,7 @@ class Curses():
         self.verbose = verbose
 
         # initialize modes
-        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenScripts(), ScreenSamples() ]
+        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenScripts(), ScreenSamples(), ScreenSinkInput() ]
 
         # append help messages from modes. ScreenHelp has global help, too!
         for i in range(0, len(self.modes)):
@@ -19,6 +19,7 @@ class Curses():
 
         # start at the  sink screen
         self.active_mode = 1
+        self.last_mode = 1
 
     def update(self):
         # don't do anything if we aren't active
@@ -55,12 +56,37 @@ class Curses():
     def keyevent(self, event):
 
         if ord('1') <= event <= ord(str(len(self.modes))):
+            self.last_mode = self.active_mode
             self.active_mode = event - ord('1')
+            return False
+
+        elif event == curses.KEY_BACKSPACE:
+            self.active_mode = self.last_mode
             return False
 
         elif event == ord("u"):
             par.use_dezibel = not par.use_dezibel
             return False
+
+        elif event == ord('s'):
+            sys.stderr.write(str(self.modes[self.active_mode].__class__.__dict__))
+            return False
+
+        # enter key is unreliable
+        # dynamically check if the active screen has any active associated sink input
+        elif event == curses.KEY_ENTER or event < 256 and chr(event) == "\n":
+            if 'getActiveSinkInput' in self.modes[self.active_mode].__class__.__dict__:
+                # if we can get one, go to the sink input screen
+                input = self.modes[self.active_mode].getActiveSinkInput()
+                if input is not None:
+                    self.last_mode = self.active_mode
+                    self.modes[5].setActiveSinkInput(input.index)
+                    self.active_mode = 5
+                    return False
+
+            elif self.active_mode == 5 and self.last_mode != self.active_mode:
+                self.active_mode = self.last_mode
+                return False
 
         elif event == curses.KEY_LEFT:
             event = ord('h')
@@ -115,12 +141,11 @@ class Curses():
             # no char hit? well, at least redraw..
             self.update()
 
-        curses.endwin()
-
 from screens.ScreenHelp import ScreenHelp
 from screens.ScreenSinks import ScreenSinks
 from screens.ScreenClients import ScreenClients
 from screens.ScreenScripts import ScreenScripts
 from screens.ScreenSamples import ScreenSamples
+from screens.ScreenSinkInput import ScreenSinkInput
 
 from ParCur import par

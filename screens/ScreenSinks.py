@@ -125,6 +125,9 @@ class ScreenSinks():
 
         return False
 
+    def getActiveSinkInput(self):
+        return par.pa_sinks.values()[self.active_sink].getActiveSinkInput()
+
     def draw_help(self, win):
         win.attron(curses.A_BOLD)
         win.addstr("  Keys - Sinks\n")
