@@ -108,7 +108,7 @@ class ScreenSinks():
                     par.pa_sinks.values()[self.active_sink].layout(None)
                     self.active_sink = i
                     par.pa_sinks.values()[self.active_sink].layout(self.wactivesink)
-                    self.redraw()
+                    self.redraw(True)
                     return True
 
             return par.pa_sinks.values()[self.active_sink].key_event(event)
