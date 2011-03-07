@@ -9,6 +9,7 @@ What's working:
  - some info displayed
  - volume of sinks and sink inputs
  - moving sink inputs around
+ - controlling channel levels individually
 
 TODO:
  - robustnes of ui, probably tons of curses newbie mistakes in there

@@ -2,6 +2,8 @@ import curses
 
 from PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 
+import sys
+
 state_names = { }
 state_names[PA_SINK_RUNNING] = "running"
 state_names[PA_SINK_SUSPENDED] = "suspended"

@@ -40,7 +40,7 @@ class ScreenSinkInput():
 
     def draw_help(self, win):
         win.attron(curses.A_BOLD)
-        win.addstr("  Keys - Sinks\n")
+        win.addstr("  Keys - Sink Inputs\n")
         win.addstr("-----------------------------------------")
         win.attroff(curses.A_BOLD)
         win.addstr("""
@@ -54,9 +54,7 @@ class ScreenSinkInput():
        n\t\t: Set selected volume to 1.0
        m\t\t: Set selected volume to 0.0 (Mute)
        N\t\t: Set all volumes to 1.0
-
-       X\t\t: Kill Sink Input
-       M [werty]\t: Move Sink Input to Sink by char
+       M\t\t: Set all volumes to 0.0
 
 
 """)
