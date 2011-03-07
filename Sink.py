@@ -117,10 +117,10 @@ class Sink():
         wcontrols.move(27, 7)
         if par.use_dezibel:
             volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
-            wcontrols.addstr(('{:+3.2f}'.format(volume_db_avg) + " dB").rjust(9))
+            wcontrols.addstr(('{:+3.2f}'.format(volume_db_avg) + " dB").rjust(9), curses.color_pair(2) if not self.volume_uniform() else 0)
         else:
             volume_avg = round(sum(self.volume) / len(self.volume), 2)
-            wcontrols.addstr(('{:3.2f}'.format(volume_avg * 100) + " %").rjust(9))
+            wcontrols.addstr(('{:3.2f}'.format(volume_avg * 100) + " %").rjust(9), curses.color_pair(2) if not self.volume_uniform() else 0)
 
         inputs = par.get_sink_inputs_by_sink(self.index)
         i = 0
@@ -129,6 +129,14 @@ class Sink():
             i += 1
 
         wcontrols.refresh()
+
+    def volume_uniform(self):
+        if self.channels == 0:
+            return True
+        for i in range(1, self.channels):
+            if self.volume[i] != self.volume[0]:
+                return False
+        return True
 
     def draw_info(self):
         if self.winfol is None or self.winfor is None:

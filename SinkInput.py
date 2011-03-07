@@ -77,6 +77,13 @@ class SinkInput():
             wcontrols.move(24, i*23)
             wcontrols.addstr(channel_names[self.channel_map[i]], curses.A_BOLD if self.cursor == i else 0)
 
+            # text info, too
+            wcontrols.move(25, i*23)
+            if par.use_dezibel:
+                wcontrols.addstr(('{:+3.2f}'.format(self.volume_db[i]) + " dB").rjust(9))
+            else:
+                wcontrols.addstr(('{:3.2f}'.format(self.volume[i] * 100) + " %").rjust(9))
+
         self.wcontrols.refresh()
 
     def cursorCheck(self):
@@ -159,10 +166,10 @@ class SinkInput():
         win.move(25, 7)
         if par.use_dezibel:
             volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
-            win.addstr(('{:+3.2f}'.format(volume_db_avg) + " dB").rjust(9))
+            win.addstr(('{:+3.2f}'.format(volume_db_avg) + " dB").rjust(9), curses.color_pair(2) if not self.volume_uniform() else 0)
         else:
             volume_avg = round(sum(self.volume) / len(self.volume), 2)
-            win.addstr(('{:3.2f}'.format(volume_avg * 100) + " %").rjust(9))
+            win.addstr(('{:3.2f}'.format(volume_avg * 100) + " %").rjust(9), curses.color_pair(2) if not self.volume_uniform() else 0)
 
     def draw_info(self, win):
         """ general information """
@@ -203,6 +210,15 @@ class SinkInput():
                 volume.append(self.volume[i])
 
         par.set_sink_input_volume(self.index, volume)
+
+    def volume_uniform(self):
+        if self.channels == 0:
+            return True
+        for i in range(1, self.channels):
+            if self.volume[i] != self.volume[0]:
+                return False
+        return True
+
 
 from ParCur import par
 

@@ -27,6 +27,12 @@ class ScreenSinks():
         return
 
     def layout(self, win):
+        if win is None:
+            self.win = None
+            if self.active_sink >= 0 and self.active_sink < len(par.pa_sinks.values()):
+                par.pa_sinks.values()[self.active_sink].layout(None)
+            return
+
         self.win = win
 
         maxy, maxx = win.getmaxyx()
