@@ -33,6 +33,19 @@ class Sink():
         self.volume = par.volume_to_linear(struct.volume)
         self.volume_db = par.volume_to_dB(struct.volume)
 
+        if(self.driver == "module-tunnel.c") and 'tunnel.remote.fqdn' in self.props:
+            remote_sink = self.props['tunnel.remote.sink']
+            if remote_sink.rfind('.') > 0:
+                self.short_name = self.props['tunnel.remote.fqdn'] + '/' + remote_sink[remote_sink.rfind('.')+1:]
+            else:
+                self.short_name = self.props['tunnel.remote.fqdn'] + '/' + remote_sink
+        else:
+            # stuff with dots in the name is usually just overhead
+            if self.name.rfind('.') > 0:
+                self.short_name = self.name[self.name.rfind('.')+1:]
+            else:
+                self.short_name = self.name
+
         self.redraw()
 
     def layout(self, win):
@@ -48,16 +61,16 @@ class Sink():
         if maxy > 32:
             win.attron(curses.color_pair(2))
             win.hline(32, 0, curses.ACS_HLINE, maxx)
-            win.vline(32, 45, curses.ACS_VLINE, maxy)
-            win.addch(32, 45, curses.ACS_TTEE)
+            win.vline(32, 49, curses.ACS_VLINE, maxy)
+            win.addch(32, 49, curses.ACS_TTEE)
             win.attroff(curses.color_pair(2))
 
         win.refresh()
 
         self.wcontrols = win.derwin(30, maxx, 1, 0)
 
-        self.winfol = win.derwin(15, 41, 33, 2) if maxy > 33 else None
-        self.winfor = win.derwin(33, 48) if maxy > 33 else None
+        self.winfol = win.derwin(15, 45, 33, 2) if maxy > 33 else None
+        self.winfor = win.derwin(33, 52) if maxy > 33 else None
 
         self.redraw()
 

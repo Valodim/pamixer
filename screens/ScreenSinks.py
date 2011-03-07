@@ -75,7 +75,7 @@ class ScreenSinks():
                 wsinklist.addstr(" | ")
             wsinklist.addstr(self.sinkchars[i] + ": ")
 
-            wsinklist.addstr(sink.name, curses.color_pair(state_colors[sink.state]) | (curses.A_BOLD if i == self.active_sink else 0))
+            wsinklist.addstr(sink.short_name, curses.color_pair(state_colors[sink.state]) | (curses.A_BOLD if i == self.active_sink else 0))
 
             if sink.index in inputcount and inputcount[sink.index] > 0:
                 wsinklist.addstr(" [" + str(inputcount[sink.index]) + "]")
