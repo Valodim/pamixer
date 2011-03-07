@@ -1,6 +1,6 @@
 import curses 
 
-class ScreenSinkInput():
+class ScreenVolume():
 
     def __init__(self):
 
@@ -23,16 +23,16 @@ class ScreenSinkInput():
         # if the active index is valid
         if self.active_sink_input in par.pa_sink_inputs:
             # draw some stuff
-            par.pa_sink_inputs[self.active_sink_input].layout(self.wcontrols)
+            par.pa_sink_inputs[self.active_sink_input].layout_volume(self.wcontrols)
         else:
             self.wcontrols.addstr("No such sink input!")
 
     def redraw(self, recurse = False):
         if recurse:
-            par.pa_sink_inputs[self.active_sink_input].redraw()
+            par.pa_sink_inputs[self.active_sink_input].redraw_volume()
 
     def key_event(self, event):
-        return par.pa_sink_inputs[self.active_sink_input].key_event(event)
+        return par.pa_sink_inputs[self.active_sink_input].key_event_volume(event)
 
     def setActiveSinkInput(self, sink_input):
         """ Set a new active sink input (will not redraw itself!) """

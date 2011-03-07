@@ -11,7 +11,7 @@ class Curses():
         self.verbose = verbose
 
         # initialize modes
-        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenScripts(), ScreenSamples(), ScreenSinkInput() ]
+        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenScripts(), ScreenSamples(), ScreenVolume() ]
 
         # append help messages from modes. ScreenHelp has global help, too!
         for i in range(0, len(self.modes)):
@@ -150,6 +150,6 @@ from screens.ScreenSinks import ScreenSinks
 from screens.ScreenClients import ScreenClients
 from screens.ScreenScripts import ScreenScripts
 from screens.ScreenSamples import ScreenSamples
-from screens.ScreenSinkInput import ScreenSinkInput
+from screens.ScreenVolume import ScreenVolume
 
 from ParCur import par
