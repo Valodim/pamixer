@@ -1,7 +1,6 @@
 import curses 
 
 from PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
-from CursesHelpers import *
 
 state_names = { }
 state_names[PA_SINK_RUNNING] = "running"
@@ -118,15 +117,15 @@ class Sink():
         wcontrols.move(27, 7)
         if par.use_dezibel:
             volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
-            wcontrols.addstr(right('{:+3.2f}'.format(volume_db_avg) + " dB", 9))
+            wcontrols.addstr(('{:+3.2f}'.format(volume_db_avg) + " dB").rjust(9))
         else:
             volume_avg = round(sum(self.volume) / len(self.volume), 2)
-            wcontrols.addstr(right('{:3.2f}'.format(volume_avg * 100) + " %", 9))
+            wcontrols.addstr(('{:3.2f}'.format(volume_avg * 100) + " %").rjust(9))
 
         inputs = par.get_sink_inputs_by_sink(self.index)
         i = 0
         for input in inputs:
-            input.draw_control(wcontrols.derwin(2, 22 + i*20), self.cursor == i)
+            input.draw_control(wcontrols.derwin(2, 22 + i*25), self.cursor == i)
             i += 1
 
         wcontrols.refresh()
@@ -141,8 +140,8 @@ class Sink():
         wleft.erase()
         wright.erase()
 
-        wleft.move(0, 2)
-        wleft.addstr(center(self.name, 36) + "\n")
+        wleft.move(0, 0)
+        wleft.addstr(self.name.center(36) + "\n")
 
         wleft.addstr("\nDriver:\t\t" + self.driver)
         wleft.addstr("\nLatency:\t" + str(self.latency * 100))

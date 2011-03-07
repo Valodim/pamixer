@@ -1,7 +1,5 @@
 import curses 
 
-from CursesHelpers import *
-
 class SinkInput():
     def __init__(self, index, struct):
 
@@ -23,7 +21,7 @@ class SinkInput():
     def draw_control(self, win, active):
 
         # gauge, one bar for each channel
-        gauge = win.derwin(22, self.channels+2, 0, 8-(self.channels/2))
+        gauge = win.derwin(22, self.channels+2, 0, 11-(self.channels/2))
         for i in range(0, self.channels):
             barheight = min(22, int(self.volume[i] * 18))
             # lowest eight
@@ -46,21 +44,21 @@ class SinkInput():
                 gauge.attroff(curses.color_pair(2))
         gauge.border()
 
-        win.move(23, 4)
-        win.addstr(center(par.pa_clients[self.client].clean_name, 13), curses.color_pair(2) if par.pa_clients[self.client].clean_name != par.pa_clients[self.client].name else 0)
+        win.move(23, 3)
+        win.addstr(par.pa_clients[self.client].clean_name[0:20].center(20), curses.color_pair(2) if par.pa_clients[self.client].clean_name != par.pa_clients[self.client].name else 0)
         win.move(24, 3)
-        win.addstr(center(self.name, 13), curses.A_BOLD if active else 0)
-        win.move(25, 5)
+        win.addstr(self.name[0:20].center(20), curses.A_BOLD if active else 0)
+        win.move(25, 7)
         if par.use_dezibel:
             volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
-            win.addstr(right('{:+3.2f}'.format(volume_db_avg) + " dB", 9))
+            win.addstr(('{:+3.2f}'.format(volume_db_avg) + " dB").rjust(9))
         else:
             volume_avg = round(sum(self.volume) / len(self.volume), 2)
-            win.addstr(right('{:3.2f}'.format(volume_avg * 100) + " %", 9))
+            win.addstr(('{:3.2f}'.format(volume_avg * 100) + " %").rjust(9))
 
     def draw_info(self, win):
-        win.move(0, 2)
-        win.addstr(center(self.name, 40) + "\n")
+        win.move(0, 0)
+        win.addstr(self.name.center(40) + "\n")
 
         win.addstr("\nDriver:\t\t" + self.driver)
         win.addstr("\nClient:\t\t" + par.pa_clients[self.client].name)
