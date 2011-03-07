@@ -21,8 +21,18 @@ class SubVolume(object):
 
     def __init__(self):
         self.volume = [ ]
+        self.volume_db = [ ]
 
         self.cursor_volume = 0
+
+    def update(self, struct):
+        self.channels = struct.channel_map.channels
+        self.channel_map = [ ]
+        for i in range(0, struct.channel_map.channels):
+            self.channel_map.append(struct.channel_map.map[i])
+
+        self.volume = par.volume_to_linear(struct.volume)
+        self.volume_db = par.volume_to_dB(struct.volume)
 
     def layout_volume(self, win):
         """ fullscreen layout """

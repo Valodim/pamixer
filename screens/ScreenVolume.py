@@ -4,7 +4,7 @@ class ScreenVolume():
 
     def __init__(self):
 
-        self.active_sink_input = -1
+        self.active_volume = None
         self.sinkchars = "werty"
 
         self.win = None
@@ -21,22 +21,21 @@ class ScreenVolume():
         self.wcontrols = win.derwin(maxy-1, maxx, 1, 0)
 
         # if the active index is valid
-        if self.active_sink_input in par.pa_sink_inputs:
+        if self.active_volume is not None:
             # draw some stuff
-            par.pa_sink_inputs[self.active_sink_input].layout_volume(self.wcontrols)
+            self.active_volume.layout_volume(self.wcontrols)
         else:
-            self.wcontrols.addstr("No such sink input!")
+            self.wcontrols.addstr("No such volume control!")
 
     def redraw(self, recurse = False):
-        if recurse:
-            par.pa_sink_inputs[self.active_sink_input].redraw_volume()
+        self.active_volume.redraw_volume()
 
     def key_event(self, event):
-        return par.pa_sink_inputs[self.active_sink_input].key_event_volume(event)
+        return self.active_volume.key_event_volume(event)
 
-    def setActiveSinkInput(self, sink_input):
+    def setActiveVolume(self, volume):
         """ Set a new active sink input (will not redraw itself!) """
-        self.active_sink_input = sink_input
+        self.active_volume = volume
 
     def draw_help(self, win):
         win.attron(curses.A_BOLD)

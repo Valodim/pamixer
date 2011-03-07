@@ -22,13 +22,7 @@ class SinkInput(SubVolume):
 
         self.driver = struct.driver
 
-        self.channels = struct.channel_map.channels
-        self.channel_map = [ ]
-        for i in range(0, struct.channel_map.channels):
-            self.channel_map.append(struct.channel_map.map[i])
-
-        self.volume = par.volume_to_linear(struct.volume)
-        self.volume_db = par.volume_to_dB(struct.volume)
+        SubVolume.update(self, struct)
 
     def draw_control(self, win, active):
         """ single volume control """

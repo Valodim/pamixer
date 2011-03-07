@@ -2,19 +2,21 @@ import curses
 
 from PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 
-import sys
+from classes.SubVolume import SubVolume
 
 state_names = { }
 state_names[PA_SINK_RUNNING] = "running"
 state_names[PA_SINK_SUSPENDED] = "suspended"
 state_names[PA_SINK_IDLE] = "idle"
 
-class Sink():
+class Sink(SubVolume):
     def __init__(self, index, struct, props):
 
         self.wcontrols = None
         self.winfol = None
         self.winfor = None
+
+        SubVolume.__init__(self)
 
         self.index = index
         self.update(struct, props)
@@ -24,15 +26,12 @@ class Sink():
 
     def update(self, struct, props):
         self.name = struct.name
-        self.channels = struct.volume.channels
         self.driver = struct.driver
         self.latency = struct.latency
-        self.mute = struct.mute
         self.state = struct.state
         self.props = props
 
-        self.volume = par.volume_to_linear(struct.volume)
-        self.volume_db = par.volume_to_dB(struct.volume)
+        SubVolume.update(self, struct)
 
         if(self.driver == "module-tunnel.c") and 'tunnel.remote.fqdn' in self.props:
             remote_sink = self.props['tunnel.remote.sink']
@@ -130,14 +129,6 @@ class Sink():
 
         wcontrols.refresh()
 
-    def volume_uniform(self):
-        if self.channels == 0:
-            return True
-        for i in range(1, self.channels):
-            if self.volume[i] != self.volume[0]:
-                return False
-        return True
-
     def draw_info(self):
         if self.winfol is None or self.winfor is None:
             return
@@ -232,17 +223,12 @@ class Sink():
             self.draw_controls()
             return True
 
-    def setVolume(self, value, hard = False):
-        volume = []
-        value = max(0.0, min(par.volume_max_hard if hard else par.volume_max_soft, value))
-        for i in range(0, len(self.volume)):
-            volume.append(value)
+    def setVolume(self, value, hard = False, channels = None):
+        volume = self.getSetVolume(value, hard, channels)
         par.set_sink_volume(self.index, volume)
 
-    def changeVolume(self, up, hard = False):
-        volume = []
-        for i in range(0, len(self.volume)):
-            volume.append(max(0.0, min(par.volume_max_hard if hard else par.volume_max_soft, self.volume[i] + (par.volume_step if up else -par.volume_step))))
+    def changeVolume(self, up, hard = False, channels = None):
+        volume = self.getChangeVolume(up, hard, channels)
         par.set_sink_volume(self.index, volume)
 
     def moveInput(self, index):
@@ -251,10 +237,10 @@ class Sink():
         # move the selected sink input to the new sink
         par.move_sink_input(sink_inputs[self.cursor].index, index)
 
-    def getActiveSinkInput(self):
+    def getActiveVolume(self):
         self.cursorCheck()
         if self.cursor == -1:
-            return None
+            return self
         return par.get_sink_inputs_by_sink(self.index)[self.cursor]
 
     """

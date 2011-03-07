@@ -78,12 +78,12 @@ class Curses():
         # enter key is unreliable
         # dynamically check if the active screen has any active associated sink input
         elif event == curses.KEY_ENTER or event < 256 and chr(event) == "\n":
-            if 'getActiveSinkInput' in self.modes[self.active_mode].__class__.__dict__:
+            if 'getActiveVolume' in self.modes[self.active_mode].__class__.__dict__:
                 # if we can get one, go to the sink input screen
-                input = self.modes[self.active_mode].getActiveSinkInput()
+                input = self.modes[self.active_mode].getActiveVolume()
                 if input is not None:
                     self.last_mode = self.active_mode
-                    self.modes[5].setActiveSinkInput(input.index)
+                    self.modes[5].setActiveVolume(input)
                     self.active_mode = 5
                     return False
 

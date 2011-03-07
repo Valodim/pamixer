@@ -128,8 +128,8 @@ class ScreenSinks():
 
         return False
 
-    def getActiveSinkInput(self):
-        return par.pa_sinks.values()[self.active_sink].getActiveSinkInput()
+    def getActiveVolume(self):
+        return par.pa_sinks.values()[self.active_sink].getActiveVolume()
 
     def draw_help(self, win):
         win.attron(curses.A_BOLD)
