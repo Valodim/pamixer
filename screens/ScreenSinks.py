@@ -52,7 +52,7 @@ class ScreenSinks():
             par.pa_sinks.values()[self.active_sink].layout(self.wactivesink)
 
     def redraw(self, recurse = False):
-        if self.wsinklist is None:
+        if self.win is None:
             return
 
         if self.active_sink == -1 and len(par.pa_sinks) > 0:

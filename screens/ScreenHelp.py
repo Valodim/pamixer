@@ -10,8 +10,11 @@ class ScreenHelp():
         return
 
     def layout(self, win):
-        self.win = win
+        if win is None:
+            self.win = None
+            return
 
+        self.win = win
         self.whelp = win.derwin(1, 1)
 
         maxy, maxx = self.whelp.getmaxyx()
@@ -24,7 +27,7 @@ class ScreenHelp():
         self.redraw()
 
     def redraw(self, recurse = False):
-        if self.whelp is None:
+        if self.win is None:
             return
 
         whelp = self.whelp

@@ -10,8 +10,11 @@ class ScreenSamples():
         return
 
     def layout(self, win):
-        self.win = win
+        if win is None:
+            self.win = None
+            return
 
+        self.win = win
         win.refresh()
 
         # initial redraw

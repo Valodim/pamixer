@@ -28,8 +28,11 @@ class ScreenScripts():
         return
 
     def layout(self, win):
-        self.win = win
+        if win is None:
+            self.win = None
+            return
 
+        self.win = win
         maxy, maxx = win.getmaxyx()
 
         # window for the sink list
@@ -54,7 +57,7 @@ class ScreenScripts():
         self.redraw()
 
     def redraw(self, recurse = False):
-        if self.windex is None:
+        if self.win is None:
             return
 
         windex = self.windex

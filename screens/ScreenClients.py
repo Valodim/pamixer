@@ -25,8 +25,13 @@ class ScreenClients():
         return
 
     def layout(self, win):
-        self.win = win
+        if win is None:
+            self.win = None
+            if self.active_client >= 0 and self.active_client < len(par.pa_clients.values()):
+                par.pa_clients.values()[self.active_client].layout(None)
+            return
 
+        self.win = win
         maxy, maxx = win.getmaxyx()
 
         # window for the client list
@@ -47,7 +52,7 @@ class ScreenClients():
         self.redraw()
 
     def redraw(self, recurse = False):
-        if self.wclientlist is None:
+        if self.win is None:
             return
 
         if self.active_client == -1 and len(par.pa_clients) > 0:

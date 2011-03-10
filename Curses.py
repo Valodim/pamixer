@@ -20,6 +20,7 @@ class Curses():
         # start at the  sink screen
         self.active_mode = 1
         self.last_mode = 1
+        self.switch_mode = None
 
     def update(self):
         # don't do anything if we aren't active
@@ -28,6 +29,17 @@ class Curses():
 
         self.subscreen.attrset(0)
         self.subscreen.erase()
+
+        # shall we switch?
+        if self.switch_mode is not None:
+            # to something else, actually?
+            if self.switch_mode != self.active_mode:
+                self.last_mode = self.active_mode
+                self.modes[self.active_mode].layout(None)
+                self.active_mode = self.switch_mode
+
+            # don't do it again.
+            self.switch_mode = None
 
         self.modes[self.active_mode].layout(self.subscreen)
         self.redraw()
@@ -58,13 +70,12 @@ class Curses():
         # go to a different screen
         # right side is < because the last screen, ScreenSinkInput, cannot be chosen this way!
         if ord('1') <= event < ord(str(len(self.modes))):
-            self.last_mode = self.active_mode
-            self.active_mode = event - ord('1')
+            self.switch_mode = event - ord('1')
             return False
 
         # return to last mode
         elif event == curses.KEY_BACKSPACE:
-            self.active_mode = self.last_mode
+            self.switch_mode = self.last_mode
             return False
 
         elif event == curses.KEY_CLEAR:
@@ -82,13 +93,12 @@ class Curses():
                 # if we can get one, go to the sink input screen
                 input = self.modes[self.active_mode].getActiveVolume()
                 if input is not None:
-                    self.last_mode = self.active_mode
                     self.modes[5].setActiveVolume(input)
-                    self.active_mode = 5
+                    self.switch_mode = 5
                     return False
 
-            elif self.active_mode == 5 and self.last_mode != self.active_mode:
-                self.active_mode = self.last_mode
+            elif self.active_mode == 5:
+                self.switch_mode = self.last_mode
                 return False
 
         # fix for vim keybindings
