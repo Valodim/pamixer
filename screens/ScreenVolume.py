@@ -13,8 +13,14 @@ class ScreenVolume():
         return
 
     def layout(self, win):
-        self.win = win
+        if win is None:
+            if self.active_volume is not None:
+                # draw some stuff
+                self.active_volume.layout_volume(None)
+            self.win = None
+            return
 
+        self.win = win
         maxy, maxx = win.getmaxyx()
 
         # window for the sink list
