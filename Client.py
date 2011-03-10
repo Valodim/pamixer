@@ -4,7 +4,6 @@ import datetime
 import curses
 
 from xml.dom.minidom import *
-from CursesHelpers import *
 
 class Client():
 
@@ -82,7 +81,7 @@ class Client():
         wright.erase()
 
         wleft.move(0, 2)
-        wleft.addstr(center(self.name, 36) + "\n")
+        wleft.addstr(self.name.center(36) + "\n")
 
         # wleft.addstr("\nDriver:\t\t" + self.driver)
         # wleft.addstr("\nLatency:\t" + str(self.latency * 100))

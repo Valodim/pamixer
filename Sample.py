@@ -4,7 +4,6 @@ import datetime
 import curses
 
 from xml.dom.minidom import *
-from CursesHelpers import *
 
 class Sample():
 
