@@ -17,8 +17,10 @@ if __name__ == '__main__':
     cur = Curses(args.verbose)
 
     # ok now we update
-    par.cur = cur
     par.run(args.server)
 
+    time.sleep(0.1)
+
+    par.cur = cur
     # and run
     cur.run()
