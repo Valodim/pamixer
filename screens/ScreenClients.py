@@ -15,7 +15,7 @@ class ScreenClients():
     def __init__(self):
 
         self.active_client = -1
-        self.clientchars = "werty"
+        self.clientchars = "wertyuiopWERTYUIOP"
 
         self.show_data = True
 

@@ -15,7 +15,7 @@ class ScreenSinks():
     def __init__(self):
 
         self.active_sink = -1
-        self.sinkchars = "werty"
+        self.sinkchars = "wertyuiopWERTYUIOP"
 
         self.show_data = True
 
