@@ -133,6 +133,9 @@ class ScreenClients():
 
         return False
 
+    def getActiveVolume(self):
+        return par.pa_clients.values()[self.active_client].getActiveVolume()
+
     def draw_help(self, win):
         win.attron(curses.A_BOLD)
         win.addstr("  Keys - Clients\n")

@@ -161,6 +161,12 @@ class Client():
             name = name[len(alsa_plugin):-1]
         return name
 
+    def getActiveVolume(self):
+        self.cursorCheck()
+        if self.cursor >= 0:
+            return par.get_sink_inputs_by_client(self.index)[self.cursor]
+        return None
+
     def cursorCheck(self):
         """
         Moves the cursor to the left until there is a sink input,
