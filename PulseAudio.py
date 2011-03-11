@@ -30,7 +30,7 @@ class PulseAudio():
         self.pa_mainloop = pa_threaded_mainloop_new()
         self.pa_mainloop_api = pa_threaded_mainloop_get_api(self.pa_mainloop)
 
-        self._context = pa_context_new(self.pa_mainloop_api, "parcur client")
+        self._context = pa_context_new(self.pa_mainloop_api, "pamixer")
         self._context_notify_cb = pa_context_notify_cb_t(self.context_notify_cb)
         pa_context_set_state_callback(self._context, self._context_notify_cb, None)
         pa_context_connect(self._context, server, 0, None);
