@@ -218,6 +218,15 @@ class Sink(SubVolume):
             self.draw_controls()
             return True
 
+        elif event == ord('M'):
+            self.setVolume(0.0)
+            sink_inputs = par.get_sink_inputs_by_sink(self.index)
+            for sink_input in sink_inputs:
+                sink_input.setVolume(0.0)
+
+            self.draw_controls()
+            return True
+
         elif event == ord('X'):
             if self.cursor >= 0:
                 par.get_sink_inputs_by_sink(self.index)[self.cursor].kill()
