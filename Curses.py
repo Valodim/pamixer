@@ -1,6 +1,7 @@
 import curses 
 import time
 import sys
+import threading
 
 class Curses():
 
@@ -22,10 +23,14 @@ class Curses():
         self.last_mode = 1
         self.switch_mode = None
 
+        self.lock_update = threading.Lock()
+
     def update(self):
         # don't do anything if we aren't active
         if not self.subscreen:
             return
+
+        self.lock_update.acquire(True)
 
         self.subscreen.attrset(0)
         self.subscreen.erase()
@@ -43,6 +48,8 @@ class Curses():
 
         self.modes[self.active_mode].layout(self.subscreen)
         self.redraw()
+
+        self.lock_update.release()
 
         return
 
