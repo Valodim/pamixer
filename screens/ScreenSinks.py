@@ -150,6 +150,8 @@ class ScreenSinks():
        N\t\t: Set all volumes to 1.0
        M\t\t: Set all volumes to 0.0
 
+       enter\t: detailed volume control
+
        X\t\t: Kill Sink Input
        C [sinkchar]\t: Move Sink Input to Sink by char
 

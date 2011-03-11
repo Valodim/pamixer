@@ -154,6 +154,8 @@ class ScreenClients():
        N\t\t: Set all volumes to 1.0
        M\t\t: Set all volumes to 0.0 (Mute)
 
+       enter\t: detailed volume control
+
        X\t\t: Kill Sink Input
 
 

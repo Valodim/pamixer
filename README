@@ -15,8 +15,8 @@ TODO:
  - robustnes of ui, probably tons of curses newbie mistakes in there
  - finish script execution
  - more sample management
- - work with channels
  - more and better structured info
+ - cards screen (ie, for profile changing)
  - bugs, bugs, bugs
 
 The lib_pulseaudio bindings come from a seperate repository as a submodule, to

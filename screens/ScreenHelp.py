@@ -67,7 +67,9 @@ class ScreenHelp():
        4\t\t: Show Scripts
        5\t\t: Show Samples
 
-       u\t\t: Switch volume unit dB / Percent
+       backspace\t: Previous screen
+
+       u\t\t: Switch volume unit dB / percent
 
 
 """)
