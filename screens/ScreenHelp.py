@@ -5,14 +5,18 @@ import sys
 class ScreenHelp():
     def __init__(self):
 
+        self.drawable = False
+
         self.helps = []
 
         return
 
     def layout(self, win):
         if win is None:
-            self.win = None
+            self.drawable = False
             return
+
+        self.drawable = True
 
         self.win = win
         self.whelp = win.derwin(1, 1)
@@ -27,7 +31,7 @@ class ScreenHelp():
         self.redraw()
 
     def redraw(self, recurse = False):
-        if self.win is None:
+        if self.drawable is False:
             return
 
         whelp = self.whelp

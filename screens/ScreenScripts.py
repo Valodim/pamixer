@@ -21,6 +21,8 @@ class ScreenScripts():
         self.windex = None
         self.wpreview = None
 
+        self.drawable = False
+
         self.cursor = -1
 
         self.scripts = os.listdir("scripts")
@@ -29,8 +31,10 @@ class ScreenScripts():
 
     def layout(self, win):
         if win is None:
-            self.win = None
+            self.drawable = False
             return
+
+        self.drawable = True
 
         self.win = win
         maxy, maxx = win.getmaxyx()
@@ -57,7 +61,7 @@ class ScreenScripts():
         self.redraw()
 
     def redraw(self, recurse = False):
-        if self.win is None:
+        if self.drawable is False:
             return
 
         windex = self.windex

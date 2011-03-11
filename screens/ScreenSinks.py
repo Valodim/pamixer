@@ -19,8 +19,9 @@ class ScreenSinks():
 
         self.show_data = True
 
-        self.win = None
         self.wsinklist = None
+
+        self.drawable = False
 
         # 0 = 
         self.mode = MODE_NORMAL
@@ -28,12 +29,12 @@ class ScreenSinks():
 
     def layout(self, win):
         if win is None:
-            self.win = None
+            self.drawable = False
             if self.active_sink >= 0 and self.active_sink < len(par.pa_sinks.values()):
                 par.pa_sinks.values()[self.active_sink].layout(None)
             return
 
-        self.win = win
+        self.drawable = True
 
         maxy, maxx = win.getmaxyx()
 
@@ -52,7 +53,7 @@ class ScreenSinks():
             par.pa_sinks.values()[self.active_sink].layout(self.wactivesink)
 
     def redraw(self, recurse = False):
-        if self.win is None:
+        if self.drawable is False:
             return
 
         if self.active_sink == -1 and len(par.pa_sinks) > 0:

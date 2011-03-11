@@ -5,10 +5,12 @@ class ScreenVolume():
     def __init__(self):
 
         self.active_volume = None
-        self.sinkchars = "werty"
+        self.sinkchars = "wertyuiopWERTYUIOP"
 
         self.win = None
         self.wcontrols = None
+
+        self.drawable = False
 
         return
 
@@ -17,8 +19,10 @@ class ScreenVolume():
             if self.active_volume is not None:
                 # draw some stuff
                 self.active_volume.layout_volume(None)
-            self.win = None
+            self.drawable = False
             return
+
+        self.drawable = True
 
         self.win = win
         maxy, maxx = win.getmaxyx()
@@ -34,6 +38,9 @@ class ScreenVolume():
             self.wcontrols.addstr("No such volume control!")
 
     def redraw(self, recurse = False):
+        if self.drawable is False:
+            return
+
         self.check_volume()
         if self.active_volume is not None:
             self.active_volume.redraw_volume()

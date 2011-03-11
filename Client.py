@@ -24,10 +24,10 @@ class Client():
     def layout(self, win):
         # just clean up?
         if win is None:
-            self.wcontrols = None
-            self.winfol = None
-            self.winfor = None
+            self.drawable = False
             return
+
+        self.drawable = True
 
         maxy, maxx = win.getmaxyx()
 
@@ -53,7 +53,7 @@ class Client():
 
     def draw_controls(self):
         # don't proceed if it's not even our turn to draw
-        if self.wcontrols is None:
+        if self.drawable is False:
             return
 
         # if we aren't active, this needn't even be considered
@@ -71,7 +71,7 @@ class Client():
         wcontrols.refresh()
 
     def draw_info(self):
-        if self.winfol is None or self.winfor is None:
+        if self.drawable is False:
             return
 
         wleft = self.winfol

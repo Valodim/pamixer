@@ -23,6 +23,8 @@ class SubVolume(object):
         self.volume = [ ]
         self.volume_db = [ ]
 
+        self.drawable_volume = False
+
         self.cursor_volume = 0
 
     def update(self, struct):
@@ -38,8 +40,10 @@ class SubVolume(object):
         """ fullscreen layout """
         # just clean up?
         if win is None:
-            self.wcontrols = None
+            self.drawable_volume = False
             return
+
+        self.drawable_volume = True
 
         self.wcontrols = win.derwin(4, 6)
 
@@ -48,7 +52,7 @@ class SubVolume(object):
 
     def draw_controls_volume(self):
         # don't proceed if it's not even our turn to draw
-        if self.wcontrols is None:
+        if self.drawable_volume is False:
             return
 
         # if we aren't active, this needn't even be considered
