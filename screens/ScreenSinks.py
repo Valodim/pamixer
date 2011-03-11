@@ -97,7 +97,7 @@ class ScreenSinks():
         if self.mode == MODE_NORMAL:
 
             # cheating a little here, don't allow move on the own volume
-            if event == ord("M") and par.pa_sinks.values()[self.active_sink].cursor >= 0:
+            if event == ord("C") and par.pa_sinks.values()[self.active_sink].cursor >= 0:
                 self.mode = MODE_MOVE
                 return True
 
@@ -148,9 +148,10 @@ class ScreenSinks():
        n\t\t: Set selected volume to 1.0
        m\t\t: Set selected volume to 0.0 (Mute)
        N\t\t: Set all volumes to 1.0
+       M\t\t: Set all volumes to 0.0
 
        X\t\t: Kill Sink Input
-       M [werty]\t: Move Sink Input to Sink by char
+       C [sinkchar]\t: Move Sink Input to Sink by char
 
 
 """)
