@@ -64,7 +64,7 @@ class SubVolume(object):
             gauge.border()
 
             wcontrols.move(24, i*23)
-            wcontrols.addstr(channel_names[self.channel_map[i]], curses.A_BOLD if self.cursor_volume == i else 0)
+            wcontrols.addstr(channel_names[self.channel_map[i]].center(12), curses.A_BOLD if self.cursor_volume == i else 0)
 
             # text info, too
             wcontrols.move(25, i*23)
