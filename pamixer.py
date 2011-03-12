@@ -4,6 +4,13 @@ import time
 import sys
 import argparse
 
+try:
+    import pulseaudio.lib_pulseaudio
+except ImportError:
+    sys.stderr.write("Could not find lib_pulseaudio - Did you initialize the git submodule?\n")
+    sys.stderr.write("See README for more details.\n")
+    sys.exit(1)
+
 from ParCur import par
 from Curses import Curses
 
