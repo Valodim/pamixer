@@ -71,6 +71,8 @@ class ScreenVolume():
        h / Left\t\t: Move Cursor left
        l / Right\t: Move Cursor right
 
+       enter\t\t: Previous screen
+
        k / Up\t\t: Volume Up
        j / Down\t\t: Volume Down
        K\t\t: Volume Up, ignore soft limit

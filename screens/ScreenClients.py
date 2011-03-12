@@ -144,6 +144,8 @@ class ScreenClients():
        h / Left\t\t: Move Cursor left
        l / Right\t: Move Cursor right
 
+       enter\t\t: detailed volume control
+
        k / Up\t\t: Volume Up
        j / Down\t\t: Volume Down
        K\t\t: Volume Up, ignore soft limit
@@ -152,8 +154,6 @@ class ScreenClients():
        m\t\t: Set selected volume to 0.0 (Mute)
        N\t\t: Set all volumes to 1.0
        M\t\t: Set all volumes to 0.0 (Mute)
-
-       enter\t: detailed volume control
 
        X\t\t: Kill Sink Input
 
