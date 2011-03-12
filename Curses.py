@@ -8,6 +8,7 @@ class Curses():
     def __init__(self, verbose = False):
         self.counter = 0
         self.screen = None
+        self.subpad = None
 
         self.verbose = verbose
 
@@ -27,13 +28,10 @@ class Curses():
 
     def update(self):
         # don't do anything if we aren't active
-        if not self.subscreen:
+        if not self.subpad:
             return
 
         self.lock_update.acquire(True)
-
-        self.subscreen.attrset(0)
-        self.subscreen.erase()
 
         # shall we switch?
         if self.switch_mode is not None:
@@ -46,7 +44,10 @@ class Curses():
             # don't do it again.
             self.switch_mode = None
 
-        self.modes[self.active_mode].layout(self.subscreen)
+        self.subpad.attrset(0)
+        self.subpad.erase()
+
+        self.modes[self.active_mode].layout(self.subpad)
         self.redraw()
 
         self.lock_update.release()
@@ -69,8 +70,14 @@ class Curses():
 
         self.modes[self.active_mode].redraw(True)
 
+        maxy, maxx = self.screen.getmaxyx()
+
         self.screen.refresh()
-        self.subscreen.refresh()
+        if 'scrollStatus' in self.modes[self.active_mode].__class__.__dict__:
+            scrolly = self.modes[self.active_mode].scrollStatus()
+            self.subpad.refresh(scrolly, 0, 2, 0, maxy-1, maxx)
+        else:
+            self.subpad.refresh(0, 0, 2, 0, maxy-1, maxx)
 
     def keyevent(self, event):
 
@@ -144,7 +151,7 @@ class Curses():
 
         self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
 
-        self.subscreen = self.screen.derwin(2, 0)
+        self.subpad = curses.newpad(200, maxx)
         self.update()
 
         while True:
@@ -153,6 +160,7 @@ class Curses():
 
             # maybe it's an event on the lower layers?
             if self.keyevent(event):
+                self.redraw()
                 continue
 
             # end of program, just break out

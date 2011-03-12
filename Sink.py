@@ -67,8 +67,6 @@ class Sink(SubVolume):
             win.addch(32, 49, curses.ACS_TTEE)
             win.attroff(curses.color_pair(2))
 
-        win.refresh()
-
         self.wcontrols = win.derwin(30, maxx, 1, 0)
 
         self.winfol = win.derwin(15, 45, 33, 2) if maxy > 33 else None
@@ -129,8 +127,6 @@ class Sink(SubVolume):
             input.draw_control(wcontrols.derwin(2, 22 + i*25), self.cursor == i)
             i += 1
 
-        wcontrols.refresh()
-
     def draw_info(self):
         if self.drawable is False:
             return
@@ -157,9 +153,6 @@ class Sink(SubVolume):
                 wright.addstr("\nRemote Sink:\t" + self.props['tunnel.remote.description'])
         else:
             par.get_sink_inputs_by_sink(self.index)[self.cursor].draw_info(wright)
-
-        wright.refresh()
-        wleft.refresh()
 
     def cursorCheck(self):
         """

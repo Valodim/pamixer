@@ -9,6 +9,8 @@ class ScreenHelp():
 
         self.helps = []
 
+        self.scrolly = 0
+
         return
 
     def layout(self, win):
@@ -18,14 +20,9 @@ class ScreenHelp():
 
         self.drawable = True
 
-        self.win = win
-        self.whelp = win.derwin(1, 1)
+        self.whelp = win
 
         maxy, maxx = self.whelp.getmaxyx()
-
-        # enable scrolling
-        self.whelp.scrollok(1)
-        self.whelp.setscrreg(0, maxy-1)
 
         # initial redraw
         self.redraw()
@@ -37,7 +34,7 @@ class ScreenHelp():
         whelp = self.whelp
 
         whelp.erase()
-        whelp.move(0, 0)
+        whelp.move(1, 0)
 
         whelp.attron(curses.color_pair(2))
 
@@ -46,11 +43,31 @@ class ScreenHelp():
 
         whelp.attroff(curses.color_pair(2))
 
-        whelp.refresh()
+        maxy, maxx = self.whelp.getmaxyx()
+        whelp.move(self.scrolly, maxx-15)
+        whelp.addstr(('+' + str(self.scrolly)).rjust(15))
 
-        return
+    def scrollStatus(self):
+        return self.scrolly
 
     def key_event(self, event):
+        if event == ord('j'):
+            self.scrolly += 1
+            return True
+        elif event == curses.KEY_NPAGE:
+            self.scrolly += 10
+            return True
+        elif event == ord('k'):
+            self.scrolly -= 1
+            if self.scrolly < 0:
+                self.scrolly = 0
+            return True
+        elif event == curses.KEY_PPAGE:
+            self.scrolly -= 10
+            if self.scrolly < 0:
+                self.scrolly = 0
+            return True
+
         return False
 
     def draw_help(self, win):
@@ -70,6 +87,17 @@ class ScreenHelp():
        backspace\t: Previous screen
 
        u\t\t: Switch volume unit dB / percent
+""")
 
+        win.attron(curses.A_BOLD)
+        win.addstr("  Keys - Help\n")
+        win.addstr("-----------------------------------------")
+        win.attroff(curses.A_BOLD)
+        win.addstr("""
+
+       h\t\t: Scroll up
+       j\t\t: Scroll down
+       Page up\t\t: Scroll farther up
+       Page down\t: Scroll farther down
 
 """)

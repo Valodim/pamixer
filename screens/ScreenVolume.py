@@ -47,7 +47,6 @@ class ScreenVolume():
         else:
             self.wcontrols.erase()
             self.wcontrols.addstr("No such volume control!")
-            self.wcontrols.refresh()
 
     def key_event(self, event):
         self.check_volume()

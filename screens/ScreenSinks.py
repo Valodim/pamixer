@@ -86,8 +86,6 @@ class ScreenSinks():
 
             i += 1
 
-        wsinklist.refresh()
-
         if recurse and self.active_sink >= 0 and self.active_sink < len(par.pa_sinks):
             par.pa_sinks.values()[self.active_sink].redraw(True)
 

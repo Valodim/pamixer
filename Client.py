@@ -38,8 +38,6 @@ class Client():
             win.addch(32, 45, curses.ACS_TTEE)
             win.attroff(curses.color_pair(2))
 
-        win.refresh()
-
         self.wcontrols = win.derwin(30, maxx, 1, 0)
 
         self.winfol = win.derwin(15, 41, 33, 2) if maxy > 33 else None
@@ -68,8 +66,6 @@ class Client():
             input.draw_control(wcontrols.derwin(2, 2 + i*20), self.cursor == i)
             i += 1
 
-        wcontrols.refresh()
-
     def draw_info(self):
         if self.drawable is False:
             return
@@ -93,9 +89,6 @@ class Client():
             # wright.addstr("\nServer:\t\t" + self.props['tunnel.remote.server'])
             # wright.addstr("\nRemote User:\t" + self.props['tunnel.remote.user'])
             # wright.addstr("\nRemote Sink:\t" + self.props['tunnel.remote.description'])
-
-        wleft.refresh()
-        wright.refresh()
 
     def key_event(self, event):
         self.cursorCheck()

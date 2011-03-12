@@ -15,7 +15,6 @@ class ScreenSamples():
             return
 
         self.win = win
-        win.refresh()
 
         # initial redraw
         self.redraw()
@@ -33,7 +32,6 @@ class ScreenSamples():
         for i in samples:
             win.addstr(samples[i].name + "\n")
 
-        win.refresh()
 
         return
 

@@ -77,8 +77,6 @@ class SubVolume(object):
             else:
                 wcontrols.addstr(('{:3.2f}'.format(self.volume[i] * 100) + " %").rjust(9))
 
-        wcontrols.refresh()
-
     def cursorCheck_volume(self):
         while self.cursor_volume >= self.channels:
             self.cursor_volume -= 1

@@ -55,7 +55,6 @@ class ScreenScripts():
         # window for the active sink
         self.wpreview = win.derwin(4, 28)
 
-        win.refresh()
 
         # initial redraw
         self.redraw()
@@ -86,9 +85,6 @@ class ScreenScripts():
             for line in script:
                 wpreview.addstr(line)
 
-        windex.refresh()
-        wpreview.refresh()
-        self.win.refresh()
 
         return
 

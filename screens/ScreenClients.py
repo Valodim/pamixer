@@ -92,7 +92,6 @@ class ScreenClients():
         if recurse and self.active_client < len(par.pa_clients):
             par.pa_clients.values()[self.active_client].redraw(True)
 
-        wclientlist.refresh()
 
         return
 
