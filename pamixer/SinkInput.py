@@ -1,8 +1,8 @@
 import curses 
 import sys
 
-from ParCur import par
-from classes.SubVolume import SubVolume
+from pamixer.ParCur import par
+from pamixer.classes.SubVolume import SubVolume
 
 class SinkInput(SubVolume):
     def __init__(self, index, struct):

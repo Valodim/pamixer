@@ -7,7 +7,7 @@ import sys
 import shutil
 from xml.dom.minidom import *
 
-from PulseAudio import PulseAudio 
+from pamixer.PulseAudio import PulseAudio 
 
 class ParCur():
 
@@ -187,8 +187,8 @@ class ParCur():
 
 par = ParCur()
 
-from Curses import Curses
-from Client import Client
-from Sink import Sink
-from SinkInput import SinkInput
-from Sample import Sample
+from pamixer.Curses import Curses
+from pamixer.Client import Client
+from pamixer.Sink import Sink
+from pamixer.SinkInput import SinkInput
+from pamixer.Sample import Sample

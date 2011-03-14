@@ -1,6 +1,6 @@
 import curses 
 
-from PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
+from pamixer.PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 
 MODE_NORMAL = 0
 MODE_MOVE = 1
@@ -156,4 +156,4 @@ class ScreenSinks():
 
 """)
 
-from ParCur import par
+from pamixer.ParCur import par

@@ -11,8 +11,8 @@ except ImportError:
     sys.stderr.write("See README for more details.\n")
     sys.exit(1)
 
-from ParCur import par
-from Curses import Curses
+from pamixer.ParCur import par
+from pamixer.Curses import Curses
 
 if __name__ == '__main__':
 

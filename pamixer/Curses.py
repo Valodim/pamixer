@@ -170,11 +170,11 @@ class Curses():
             # no char hit? well, at least redraw..
             self.update()
 
-from screens.ScreenHelp import ScreenHelp
-from screens.ScreenSinks import ScreenSinks
-from screens.ScreenClients import ScreenClients
-from screens.ScreenScripts import ScreenScripts
-from screens.ScreenSamples import ScreenSamples
-from screens.ScreenVolume import ScreenVolume
+from pamixer.screens.ScreenHelp import ScreenHelp
+from pamixer.screens.ScreenSinks import ScreenSinks
+from pamixer.screens.ScreenClients import ScreenClients
+from pamixer.screens.ScreenScripts import ScreenScripts
+from pamixer.screens.ScreenSamples import ScreenSamples
+from pamixer.screens.ScreenVolume import ScreenVolume
 
-from ParCur import par
+from pamixer.ParCur import par

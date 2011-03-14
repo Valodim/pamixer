@@ -18,4 +18,4 @@ class Sample():
     def update(self, index, struct):
         self.name = struct.name
 
-from ParCur import par
+from pamixer.ParCur import par
