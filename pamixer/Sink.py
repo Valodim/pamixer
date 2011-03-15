@@ -1,8 +1,8 @@
 import curses 
 
-from pamixer.PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
+from PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 
-from pamixer.classes.SubVolume import SubVolume
+from classes.SubVolume import SubVolume
 
 state_names = { }
 state_names[PA_SINK_RUNNING] = "running"
@@ -275,4 +275,4 @@ class Sink(SubVolume):
     ('active_port', POINTER(pa_sink_port_info)),
     """
 
-from pamixer.ParCur import par
+from ParCur import par

@@ -1,7 +1,7 @@
 import curses 
 import os 
 
-from pamixer.PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
+from ..PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 
 MODE_NORMAL = 0
 MODE_MOVE = 1
@@ -119,4 +119,4 @@ class ScreenScripts():
     def draw_help(self, win):
         pass
 
-from pamixer.ParCur import par
+from ..ParCur import par

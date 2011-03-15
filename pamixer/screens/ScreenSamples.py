@@ -38,4 +38,4 @@ class ScreenSamples():
     def draw_help(self, win):
         pass
 
-from pamixer.ParCur import par
+from ..ParCur import par

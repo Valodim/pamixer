@@ -85,5 +85,5 @@ class ScreenVolume():
 
 """)
 
-from pamixer.ParCur import par
+from ..ParCur import par
 

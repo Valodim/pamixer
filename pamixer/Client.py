@@ -173,4 +173,4 @@ class Client():
         if len(client_inputs) == 0:
             self.cursor = -1
 
-from pamixer.ParCur import par
+from ParCur import par
