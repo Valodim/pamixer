@@ -115,10 +115,10 @@ class ScreenSinks():
         elif self.mode == MODE_MOVE:
 
             # sink range
-            for i in range(0, len(self.sinkchars)):
-                if event == ord(self.sinkchars[i]) and par.pa_sinks.has_key(i):
+            for i in range(0, min(len(self.sinkchars), len(par.pa_sinks))):
+                if event == ord(self.sinkchars[i]):
                     # tell the sink to move this thing around
-                    par.pa_sinks.values()[self.active_sink].moveInput(i)
+                    par.pa_sinks.values()[self.active_sink].moveInput(par.pa_sinks.values()[i].index)
                     # return to normal mode
                     self.mode = MODE_NORMAL
                     return False
