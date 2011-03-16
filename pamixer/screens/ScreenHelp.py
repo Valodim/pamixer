@@ -53,9 +53,13 @@ class ScreenHelp():
     def key_event(self, event):
         if event == ord('j'):
             self.scrolly += 1
+            if self.scrolly > 150:
+                self.scrolly = 150
             return True
         elif event == curses.KEY_NPAGE:
             self.scrolly += 10
+            if self.scrolly > 150:
+                self.scrolly = 150
             return True
         elif event == ord('k'):
             self.scrolly -= 1
