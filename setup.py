@@ -9,8 +9,7 @@ setup(name='pamixer',
       author_email='valodim@mugenguild.com',
       url='http://github.com/valodim/pamixer',
       download_url='http://datatomb.de/~valodim/pamixer-0.1.tar.gz',
-      package_dir={'pamixer':'src'},
       packages=['pamixer', 'pamixer.classes', 'pamixer.screens'],
-      scripts=['pamixer'],
+      scripts=['bin/pamixer'],
       requires=['libpulseaudio(>=0.9.22)']
      )
