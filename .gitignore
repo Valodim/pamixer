@@ -1,4 +1,6 @@
 build
+dist
+pamixer.egg-info
 
 *~
 *.out
@@ -45,4 +47,5 @@ Thumbs.db
 
 *.pyc
 
+MANIFEST
 stderr
