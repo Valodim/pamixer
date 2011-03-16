@@ -25,7 +25,7 @@ class ScreenScripts():
 
         self.cursor = -1
 
-        self.scripts = os.listdir("scripts")
+        self.scripts = [ ] # os.listdir("scripts")
 
         return
 
@@ -49,6 +49,9 @@ class ScreenScripts():
         win.addstr("Script Index")
         win.move(1, 28)
         win.addstr("Script Preview")
+
+        win.move(0, 33)
+        win.addstr("NOT YET IMPLEMENTED")
 
         self.windex = win.derwin(maxy-4, 23, 4, 1)
 
