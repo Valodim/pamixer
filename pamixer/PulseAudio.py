@@ -9,7 +9,7 @@ def null_cb(a=None, b=None, c=None, d=None):
     return
 
 class PulseAudio():
-    def __init__(self, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, volume_change_cb, new_sample_cb, remove_sample_cb, server = None):
+    def __init__(self, new_client_cb, remove_client_cb, new_sink_cb, remove_sink_cb, new_sink_input_cb, remove_sink_input_cb, volume_change_cb, new_sample_cb, remove_sample_cb, new_source_cb, remove_source_cb, new_source_output_cb, remove_source_output_cb, server = None):
 
         self.sinks = {}
         self.monitor_sinks = []
@@ -23,8 +23,10 @@ class PulseAudio():
         self.remove_sink_cb = remove_sink_cb
         self.new_sample_cb = new_sample_cb
         self.remove_sample_cb = remove_sample_cb
-        # self.new_source_cb = new_source_cb
-        # self.remove_source_cb = remove_source_cb
+        self.new_source_cb = new_source_cb
+        self.new_source_output_cb = new_source_output_cb
+        self.remove_source_cb = remove_source_cb
+        self.remove_source_output_cb = remove_source_output_cb
         self.volume_change_cb = volume_change_cb
 
         self.pa_mainloop = pa_threaded_mainloop_new()
@@ -134,15 +136,15 @@ class PulseAudio():
         return
 
     def pa_source_info_cb(self, context, struct, eol, user_data):
-        return
         if eol: return
 
-        if struct:
+        try:
+            if struct:
+                self.new_source_cb(struct.contents.index, struct.contents, self.dict_from_proplist(struct.contents.proplist))
 
-            if  struct.contents.monitor_of_sink_name:
-                self.new_output_cb(struct.contents.index, struct.contents.monitor_of_sink_name, struct.contents.description, user_data)
-                volume = int(pa_cvolume_avg(struct.contents.volume))
-                self.volume_change_cb(volume)
+        except Exception, text:
+            self.__print( "pa :: ERROR pa_source_info_cb %s" % text)
+            raise Exception
 
     def pa_stream_request_cb(self, stream, length, index):
 
@@ -187,7 +189,14 @@ class PulseAudio():
     def pa_context_success_cb(self, context, c_int,  user_data):
         return
 
-    def pa_source_output_info_cb(self, context, struct, c_int, user_data):
+    def pa_source_output_info_cb(self, context, struct, index, user_data):
+        if struct and user_data:
+
+            # here we go...
+            self.__print( "source output info")
+            # self.__print( pa_proplist_to_string(struct.contents.proplist))
+
+            self.new_source_output_cb(struct.contents.index, struct.contents)
         return
 
     def pa_context_subscribe_cb(self, context, event_type, index, user_data):
@@ -232,7 +241,16 @@ class PulseAudio():
                     # self.remove_pa_output( int(index) )
                     pass
                 else:
-                    o = pa_context_get_source_info_by_index(self._context, int(index), self._pa_source_info_cb, False)
+                    o = pa_context_get_source_info_by_index(self._context, int(index), self._pa_source_info_cb, True)
+                    pa_operation_unref(o)
+
+            if et == PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT:
+                if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
+                    # Remove output source
+                    # self.remove_pa_output( int(index) )
+                    pass
+                else:
+                    o = pa_context_get_source_info_by_index(self._context, int(index), self._pa_source_output_info_cb, True)
                     pa_operation_unref(o)
 
         except Exception, text:
@@ -299,6 +317,20 @@ class PulseAudio():
         for i in range(0, cvolume.channels):
             volume.append(pa_sw_volume_to_linear(cvolume.values[i]))
         return volume
+
+    def set_source_volume(self, index, cvolume):
+        self.__print("set_source_volume")
+
+        # Note setting volume causes a trigger of sink_input_info which will gives us back new volume!
+        o = pa_context_set_source_volume_by_index(self._context, index, cvolume, self._null_cb, None) # NOTE: dont pass in any thing here causes a seg fault
+        pa_operation_unref(o)
+
+    def set_source_output_volume(self, index, cvolume):
+        self.__print("set_source_output_volume")
+
+        # Note setting volume causes a trigger of sink_input_info which will gives us back new volume!
+        o = pa_context_set_source_output_volume(self._context, index, cvolume, self._null_cb, None) # NOTE: dont pass in any thing here causes a seg fault
+        pa_operation_unref(o)
 
     def set_sink_volume(self, index, cvolume):
         self.__print("set_sink_volume")

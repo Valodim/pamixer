@@ -18,7 +18,8 @@ class ParCur():
         self.pa_clients = {}  # clients by id
         self.pa_sinks = {}
         self.pa_sink_inputs = {}
-        self.pa_outputs = {}
+        self.pa_sources = {}
+        self.pa_source_outputs = {}
 
         # whether to use dB or linear for numeric volume display
         self.use_dezibel = True
@@ -27,7 +28,7 @@ class ParCur():
         self.volume_max_hard = 1.50
 
     def run(self, server = None):
-        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change, self.on_new_sample, self.on_remove_sample, server)
+        self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change, self.on_new_sample, self.on_remove_sample, self.on_new_pa_source, self.on_remove_pa_source, self.on_new_pa_source_output, self.on_remove_pa_source_output, server)
 
         # set some helper functions
         self.volume_to_linear = self.pa.volume_to_linear
@@ -38,17 +39,39 @@ class ParCur():
         return
         #print self.managed_output_name, level
 
-    def on_remove_pa_output(self, index):
-        if self.pa_outputs.has_key(index):
-            self.__print("removed pa output", self.pa_outputs[index])
-            del self.pa_outputs[index]
+    def on_remove_pa_source(self, index):
+        if self.pa_sources.has_key(index):
+            self.__print("removed pa output", self.pa_sources[index])
+            del self.pa_sources[index]
 
-    # add new output to ours
-    def on_new_pa_output(self, index, struct, startup):
-        if not self.pa_outputs.has_key(index):
-            output = Output(struct)
-            self.__print("new pa output", output)
-            self.pa_outputs[index] = output
+    def on_new_pa_source(self, index, struct, props):
+        if not self.pa_sources.has_key(index):
+            self.__print("new source:", index, struct.name)
+            # create new
+            self.pa_sources[index] = Source(index, struct, props)
+        else:
+            self.__print("changed source:", index, struct.name)
+            # update old
+            self.pa_sources[index].update(struct, props)
+
+        self.update()
+
+    def on_new_pa_source_output(self, index, struct):
+        if not self.pa_source_output.has_key(index):
+            self.__print("new source output:", index, struct.name)
+            self.pa_source_outputs[index] = SourceOutput(index, struct)
+        else:
+            self.__print("changed source output:", index, struct.name)
+            self.pa_source_outputs[index].update(struct)
+
+        self.update()
+
+    def on_remove_pa_source_output(self, index):
+        if self.pa_source_outputs.has_key(index):
+            self.__print("remove source output", index)
+            del self.pa_source_outputs[index]
+
+        self.update()
 
     def move_all_sinks(self):
         if self.managed_output_name:
@@ -148,6 +171,13 @@ class ParCur():
                 result.append(input)
         return result
 
+    def get_source_outputs_by_source(self, index):
+        result = []
+        for output in self.pa_source_outputs.values():
+            if output.source == index:
+                result.append(output)
+        return result
+
     def move_sink_input(self, sink_input_index, sink_index):
         self.pa.move_sink_input(sink_input_index, sink_index)
 
@@ -170,6 +200,14 @@ class ParCur():
         cvolume = self.pa.volume_from_linear(volume)
         self.pa.set_sink_input_volume(index, cvolume)
 
+    def set_source_volume(self, index, volume):
+        cvolume = self.pa.volume_from_linear(volume)
+        self.pa.set_source_volume(index, cvolume)
+
+    def set_source_output_volume(self, index, volume):
+        cvolume = self.pa.volume_from_linear(volume)
+        self.pa.set_source_output_volume(index, cvolume)
+
     def kill_sink_input(self, index):
         self.pa.kill_sink_input(index)
 
@@ -191,4 +229,6 @@ from Curses import Curses
 from Client import Client
 from Sink import Sink
 from SinkInput import SinkInput
+from Source import Source
+from SourceOutput import SourceOutput
 from Sample import Sample

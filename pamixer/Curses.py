@@ -13,7 +13,7 @@ class Curses():
         self.verbose = verbose
 
         # initialize modes
-        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenScripts(), ScreenSamples(), ScreenVolume() ]
+        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenSources(), ScreenSamples(), ScreenVolume() ]
 
         # append help messages from modes. ScreenHelp has global help, too!
         for i in range(0, len(self.modes)):
@@ -64,7 +64,7 @@ class Curses():
         self.screen.addstr("3", curses.A_BOLD)
         self.screen.addstr(":Clients  ", curses.A_BOLD if self.active_mode == 2 else 0)
         self.screen.addstr("4", curses.A_BOLD)
-        self.screen.addstr(":Scripts  ", curses.A_BOLD if self.active_mode == 3 else 0)
+        self.screen.addstr(":Sources  ", curses.A_BOLD if self.active_mode == 3 else 0)
         self.screen.addstr("5", curses.A_BOLD)
         self.screen.addstr(":Samples", curses.A_BOLD if self.active_mode == 4 else 0)
 
@@ -173,7 +173,7 @@ class Curses():
 from screens.ScreenHelp import ScreenHelp
 from screens.ScreenSinks import ScreenSinks
 from screens.ScreenClients import ScreenClients
-from screens.ScreenScripts import ScreenScripts
+from screens.ScreenSources import ScreenSources
 from screens.ScreenSamples import ScreenSamples
 from screens.ScreenVolume import ScreenVolume
 
