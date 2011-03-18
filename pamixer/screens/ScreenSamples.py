@@ -87,13 +87,22 @@ class ScreenSamples():
             self.redraw()
             return True
 
-        elif event == ord('p') or event == curses.KEY_ENTER:
+        elif event == ord('p') or event == curses.KEY_ENTER or event < 256 and chr(event) == "\n":
             par.pa_samples.values()[self.cursor].play()
             return True
 
         return False
 
     def draw_help(self, win):
-        pass
+        win.attron(curses.A_BOLD)
+        win.addstr("  Keys - Samples\n")
+        win.addstr("-----------------------------------------")
+        win.attroff(curses.A_BOLD)
+        win.addstr("""
+       j / Up\t\t: Move Cursor up
+       k / Down\t: Move Cursor down
+
+       p / Enter\t: Play sample
+""")
 
 from ..ParCur import par
