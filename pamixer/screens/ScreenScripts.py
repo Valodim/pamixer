@@ -113,10 +113,6 @@ class ScreenScripts():
             self.redraw()
             return True
 
-        # change focus
-        if event == ord('X'):
-            return True
-
         return False
 
     def draw_help(self, win):

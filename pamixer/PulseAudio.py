@@ -3,6 +3,8 @@ import sys
 import os
 import ctypes
 
+from PulseAudio import PA_VOLUME_NORM
+
 # A null method that can be given to pulse methods
 def null_cb(a=None, b=None, c=None, d=None):
     #print "NULL CB"
@@ -280,7 +282,7 @@ class PulseAudio():
             self.__print( "SAMPLE INFO")
             # self.__print( pa_proplist_to_string(struct.contents.proplist))
 
-            self.new_sample_cb(int(struct.contents.index), struct.contents)
+            self.new_sample_cb(int(struct.contents.index), struct.contents, self.dict_from_proplist(struct.contents.proplist))
 
     def pa_sink_input_info_cb(self, context, struct, index, user_data):
         if struct and user_data:
@@ -351,6 +353,11 @@ class PulseAudio():
 
         # Note setting volume causes a trigger of sink_input_info which will gives us back new volume!
         o = pa_context_kill_sink_input(self._context, index, self._null_cb, None) # NOTE: dont pass in any thing here causes a seg fault
+        pa_operation_unref(o)
+
+    def sample_play(self, name, sink_name, volume = PA_VOLUME_NORM):
+        self.__print("play sample: " + name + " on " + str(sink_name))
+        o = pa_context_play_sample(self._context, name, sink_name, volume, self._null_cb, None)
         pa_operation_unref(o)
 
     def get_sink_info_by_name(self, sink_name):

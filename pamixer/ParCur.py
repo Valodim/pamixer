@@ -138,13 +138,13 @@ class ParCur():
 
         self.update()
 
-    def on_new_sample(self, index, struct):
+    def on_new_sample(self, index, struct, props):
         if not self.pa_samples.has_key(index):
             self.__print("new sample:", index, struct.name)
-            self.pa_samples[index] = Sample(index, struct)
+            self.pa_samples[index] = Sample(index, struct, props)
         else:
             self.__print("changed sample:", index, struct.name)
-            self.pa_samples[index].update(struct)
+            self.pa_samples[index].update(struct, props)
 
         self.update()
         return
@@ -180,6 +180,9 @@ class ParCur():
 
     def move_sink_input(self, sink_input_index, sink_index):
         self.pa.move_sink_input(sink_input_index, sink_index)
+
+    def sample_play(self, name, sink_index):
+        self.pa.sample_play(name, self.pa_sinks.values()[0].name if sink_index == -1 else self.pa_sinks[sink_index].name)
 
     def move_client(self, client):
         self.__print("move client", client.name)
