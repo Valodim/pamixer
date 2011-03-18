@@ -17,7 +17,7 @@ class SinkInput(SubVolume):
 
     def update(self, struct):
         self.name = struct.name
-        self.client = struct.client
+        self.client = struct.client if struct.client < 0xffffffff else None
         self.sink = struct.sink
 
         self.driver = struct.driver
@@ -33,8 +33,9 @@ class SinkInput(SubVolume):
             self.draw_gauge(gauge, self.volume[i], 1, i)
         gauge.border()
 
-        win.move(23, 3)
-        win.addstr(par.pa_clients[self.client].clean_name[0:20].center(20), curses.color_pair(2) if par.pa_clients[self.client].clean_name != par.pa_clients[self.client].name else 0)
+        if self.client is not None:
+            win.move(23, 3)
+            win.addstr(par.pa_clients[self.client].clean_name[0:20].center(20), curses.color_pair(2) if par.pa_clients[self.client].clean_name != par.pa_clients[self.client].name else 0)
         win.move(24, 3)
         win.addstr(self.name[0:20].center(20), curses.A_BOLD if active else 0)
         win.move(25, 7)
@@ -51,7 +52,10 @@ class SinkInput(SubVolume):
         win.addstr(self.name.center(40) + "\n")
 
         win.addstr("\nDriver:\t\t" + self.driver)
-        win.addstr("\nClient:\t\t" + par.pa_clients[self.client].name)
+        if self.client is not None:
+            win.addstr("\nClient:\t\t" + par.pa_clients[self.client].name)
+        else:
+            win.addstr("\nClient:\t\tUnknown")
         win.addstr("\nLatency:\t")
         win.addstr("\nState:\t\t")
 
