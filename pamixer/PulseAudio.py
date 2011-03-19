@@ -198,7 +198,7 @@ class PulseAudio():
             self.__print( "source output info")
             # self.__print( pa_proplist_to_string(struct.contents.proplist))
 
-            self.new_source_output_cb(struct.contents.index, struct.contents)
+            self.new_source_output_cb(struct.contents.index, struct.contents, pa_proplist_to_string(struct.contents.proplist))
         return
 
     def pa_context_subscribe_cb(self, context, event_type, index, user_data):
@@ -240,8 +240,7 @@ class PulseAudio():
             if et == PA_SUBSCRIPTION_EVENT_SOURCE:
                 if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
                     # Remove output source
-                    # self.remove_pa_output( int(index) )
-                    pass
+                    self.remove_source_cb( int(index) )
                 else:
                     o = pa_context_get_source_info_by_index(self._context, int(index), self._pa_source_info_cb, True)
                     pa_operation_unref(o)
@@ -249,14 +248,13 @@ class PulseAudio():
             if et == PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT:
                 if event_type & PA_SUBSCRIPTION_EVENT_TYPE_MASK == PA_SUBSCRIPTION_EVENT_REMOVE:
                     # Remove output source
-                    # self.remove_pa_output( int(index) )
-                    pass
+                    self.remove_source_output_cb( int(index) )
                 else:
-                    o = pa_context_get_source_info_by_index(self._context, int(index), self._pa_source_output_info_cb, True)
+                    o = pa_context_get_source_output_info(self._context, int(index), self._pa_source_output_info_cb, True)
                     pa_operation_unref(o)
 
         except Exception, text:
-            print "pa :: ERROR pa_context_subscribe_cb %s" % text
+            self.__print("pa :: ERROR pa_context_subscribe_cb %s" % text)
             raise Exception
 
     def dict_from_proplist(self, proplist):
@@ -376,5 +374,5 @@ class PulseAudio():
         pa_ext_stream_restore_delete(self._context, names, self._pa_context_success_cb, None)
 
     def __print(self, text):
-        # sys.stderr.write(str(text))
+        sys.stderr.write(str(text))
         return

@@ -56,13 +56,13 @@ class ParCur():
 
         self.update()
 
-    def on_new_pa_source_output(self, index, struct):
-        if not self.pa_source_output.has_key(index):
+    def on_new_pa_source_output(self, index, struct, props):
+        if not self.pa_source_outputs.has_key(index):
             self.__print("new source output:", index, struct.name)
-            self.pa_source_outputs[index] = SourceOutput(index, struct)
+            self.pa_source_outputs[index] = SourceOutput(index, struct, props)
         else:
             self.__print("changed source output:", index, struct.name)
-            self.pa_source_outputs[index].update(struct)
+            self.pa_source_outputs[index].update(struct, props)
 
         self.update()
 
