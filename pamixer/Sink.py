@@ -1,6 +1,7 @@
 import curses 
 
 from PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
+from PulseAudio import PA_CHANNEL_POSITION_FRONT_LEFT, PA_CHANNEL_POSITION_FRONT_RIGHT, PA_CHANNEL_POSITION_FRONT_CENTER, PA_CHANNEL_POSITION_REAR_CENTER, PA_CHANNEL_POSITION_REAR_LEFT, PA_CHANNEL_POSITION_REAR_RIGHT, PA_CHANNEL_POSITION_LFE, PA_CHANNEL_POSITION_FRONT_LEFT_OF_CENTER, PA_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER, PA_CHANNEL_POSITION_SIDE_LEFT, PA_CHANNEL_POSITION_SIDE_RIGHT
 
 from classes.SubVolume import SubVolume
 
@@ -48,8 +49,6 @@ class Sink(SubVolume):
                 self.short_name = self.name[self.name.rfind('.')+1:]
             else:
                 self.short_name = self.name
-
-        self.redraw()
 
     def layout(self, win):
         # just clean up?
@@ -171,6 +170,8 @@ class Sink(SubVolume):
         wleft.addstr("\nState:\t\t" + state_names[self.state])
         wleft.addstr("\nActual Latency:\t" + '{:3.2f}ms'.format(self.latency / 1000))
         wleft.addstr("\nConfig Latency:\t" + '{:3.2f}ms'.format(self.configured_latency / 1000))
+
+        self.draw_picto(wleft.derwin(7, 35))
 
         if self.cursor == -1:
             wright.addstr("\tSink Properties\n")

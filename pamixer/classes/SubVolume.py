@@ -16,6 +16,20 @@ channel_names[PA_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER] = 'front right';
 channel_names[PA_CHANNEL_POSITION_SIDE_LEFT] = 'side left';
 channel_names[PA_CHANNEL_POSITION_SIDE_LEFT] = 'side right';
 
+channel_picto = {
+        PA_CHANNEL_POSITION_FRONT_LEFT: [ 'FL', 0, 0 ],
+        PA_CHANNEL_POSITION_FRONT_RIGHT: [ 'FR', 0, 7 ],
+        PA_CHANNEL_POSITION_FRONT_CENTER: [ 'C', 1, 3 ],
+        PA_CHANNEL_POSITION_REAR_CENTER: [ 'C', 1, 3 ],
+        PA_CHANNEL_POSITION_REAR_LEFT: [ 'RL', 3, 6 ],
+        PA_CHANNEL_POSITION_REAR_RIGHT: [ 'RR', 1, 3 ],
+        PA_CHANNEL_POSITION_LFE: [ 'S', 2, 4 ],
+        PA_CHANNEL_POSITION_FRONT_LEFT_OF_CENTER: [ 'FL', 0, 0 ],
+        PA_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER: [ 'FR', 0, 7 ],
+        PA_CHANNEL_POSITION_SIDE_LEFT: [ 'L', 2, 0 ],
+        PA_CHANNEL_POSITION_SIDE_LEFT: [ 'R', 2, 7 ],
+}
+
 class SubVolume(object):
     """ This is a superclass for anything that has a volume """
 
@@ -60,6 +74,8 @@ class SubVolume(object):
 
         wcontrols = self.wcontrols
         wcontrols.erase()
+
+        self.draw_picto(wcontrols.derwin(30, 5), self.cursor_volume)
 
         # draw volume gauge, just an average
         for i in range(0, self.channels):
@@ -147,6 +163,17 @@ class SubVolume(object):
                 win.attron(curses.color_pair(2))
                 win.vline(3-min(3, barheight-18), offset +i, curses.ACS_BLOCK, min(3, barheight-18))
                 win.attroff(curses.color_pair(2))
+
+    def draw_picto(self, win, cursor = False):
+        for i in range(0, self.channels):
+            picto = channel_picto[self.channel_map[i]]
+            win.move(picto[1], picto[2])
+            color = 0
+            if self.volume[i] == 0.0:
+                color = curses.color_pair(6)
+            elif self.volume[i] > 1.0:
+                color = curses.color_pair(2)
+            win.addstr(picto[0], color | (curses.A_BOLD if cursor is not False and (i == cursor) else 0))
 
     def volume_uniform(self):
         if self.channels == 0:
