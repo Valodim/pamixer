@@ -2,17 +2,14 @@ import curses
 
 from ..PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 
-state_colors = { }
-state_colors[PA_SINK_RUNNING] = 3
-state_colors[PA_SINK_SUSPENDED] = 4
-state_colors[PA_SINK_IDLE] = 1
-
 class ScreenSources():
 
     def __init__(self):
 
-        self.active_source = -1
-        self.sourcechars = "wertyuiopWERTYUIOP"
+        # 0 = regular, 1 = monitors, 2 = both
+        self.active_type = 0
+        self.typechars = "wer"
+        self.typenames = [ "Regular", "Monitors", "Both" ]
 
         self.show_data = True
 
@@ -25,13 +22,18 @@ class ScreenSources():
     def layout(self, win):
         if win is None:
             self.drawable = False
-            if self.active_source >= 0 and self.active_source < len(par.pa_sources.values()):
-                par.pa_sources.values()[self.active_source].layout(None)
             return
 
         self.drawable = True
 
         maxy, maxx = win.getmaxyx()
+
+        if maxy > 32:
+            win.attron(curses.color_pair(2))
+            win.hline(32, 0, curses.ACS_HLINE, maxx)
+            win.vline(32, 49, curses.ACS_VLINE, maxy)
+            win.addch(32, 49, curses.ACS_TTEE)
+            win.attroff(curses.color_pair(2))
 
         # window for the source list
         self.wsourcelist = win.derwin(1, maxx, 0, 0)
@@ -39,66 +41,60 @@ class ScreenSources():
         # window for the active source
         self.wactivesource = win.derwin(2, 0)
 
-        # print the active source
-        if len(par.pa_sources) > 0:
-            # reset if invalid
-            if self.active_source == -1 or self.active_source >= len(par.pa_sources):
-                self.active_source = 0
-            # show some controls
-            par.pa_sources.values()[self.active_source].layout(self.wactivesource)
+        self.winfol = win.derwin(15, 45, 33, 2) if maxy > 33 else None
+        self.winfor = win.derwin(33, 52) if maxy > 33 else None
 
     def redraw(self, recurse = False):
         if self.drawable is False:
             return
 
-        if self.active_source == -1 and len(par.pa_sources) > 0:
-            self.active_source = 0
-            par.pa_sources.values()[self.active_source].layout(self.wactivesource)
-
-        i = 0
-        outputcount = { }
+        outputcount = { 0: 0, 1: 0, 2: 0 }
         for output in par.pa_source_outputs.values():
-            if output.source in outputcount:
-                outputcount[output.source] += 1
-            else:
-                outputcount[output.source] = 1
+            type = 1 if par.pa_sources[output.source].is_monitor else 0
+            outputcount[type] = 1
 
         wsourcelist = self.wsourcelist
 
         wsourcelist.erase()
         wsourcelist.move(0, 1)
 
+        i = 0
         # print the available sources
-        for source in par.pa_sources.values():
+        for type in range(0, len(self.typenames)):
             if i > 0:
                 wsourcelist.addstr(" | ")
-            wsourcelist.addstr(self.sourcechars[i] + ": ")
+            wsourcelist.addstr(self.typechars[type] + ": ")
+            wsourcelist.addstr(self.typenames[type], curses.color_pair(3 if outputcount[type] > 0 else 1) | (curses.A_BOLD if i == self.active_type else 0))
 
-            wsourcelist.addstr(source.short_name, curses.color_pair(state_colors[source.state]) | (curses.A_BOLD if i == self.active_source else 0))
-
-            if source.index in outputcount and outputcount[source.index] > 0:
-                wsourcelist.addstr(" [" + str(outputcount[source.index]) + "]")
+            if outputcount[type] > 0:
+                wsourcelist.addstr(" [" + str(outputcount[type]) + "]")
 
             i += 1
 
-        if recurse and self.active_source >= 0 and self.active_source < len(par.pa_sources):
-            par.pa_sources.values()[self.active_source].redraw(True)
+        self.wactivesource.erase()
+        self.wactivesource.move(0, 0)
+
+        i = 0
+        for source in par.pa_sources:
+            if self.active_type == 2 or par.pa_sources[source].is_monitor == (self.active_type == 1):
+                par.pa_sources[source].draw_control(self.wactivesource.derwin(1, i))
+
+                i += 23
 
         return
 
     def key_event(self, event):
         # source range
-        for i in range(0, min(len(self.sourcechars), len(par.pa_sources))):
-            if event == ord(self.sourcechars[i]):
-                if self.active_source == i:
+        for i in range(0, len(self.typechars)):
+            if event == ord(self.typechars[i]):
+                if self.active_type == i:
                     return True
-                par.pa_sources.values()[self.active_source].layout(None)
-                self.active_source = i
-                par.pa_sources.values()[self.active_source].layout(self.wactivesource)
+                self.active_type = i
                 self.redraw(True)
                 return True
 
-        return par.pa_sources.values()[self.active_source].key_event(event)
+        return False
+        # return par.pa_sources.values()[self.active_source].key_event(event)
 
     def getActiveVolume(self):
         return par.pa_sources.values()[self.active_source].getActiveVolume()

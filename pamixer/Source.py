@@ -16,6 +16,9 @@ class Source(SubVolume):
         self.winfol = None
         self.winfor = None
 
+        self.is_monitor = False
+        self.is_tunnel = False
+
         self.drawable = False
 
         SubVolume.__init__(self)
@@ -23,15 +26,27 @@ class Source(SubVolume):
         self.index = index
         self.update(struct, props)
 
-        # -1 is volume, 0 and above are source outputs
-        self.cursor = -1
-
     def update(self, struct, props):
         self.name = struct.name
         self.driver = struct.driver
         self.latency = struct.latency
         self.state = struct.state
         self.props = props
+
+        self.is_monitor = 'device.class' in self.props and self.props['device.class'] == 'monitor'
+
+        # some name magic
+        pieces = self.name.strip().split('.')
+        if self.is_monitor:
+            del(pieces[-1])
+
+        if pieces[0] == 'tunnel':
+            self.is_tunnel = True
+            self.origin = pieces[0] + '.' + pieces[1]
+        else:
+            self.is_tunnel = False
+            self.origin = pieces[0]
+        self.clean_name = pieces[-1]
 
         SubVolume.update(self, struct)
 
@@ -48,47 +63,10 @@ class Source(SubVolume):
             else:
                 self.short_name = self.name
 
-        self.redraw()
-
-    def layout(self, win):
-        # just clean up?
-        if win is None:
-            self.drawable = False
-            return
-
-        self.drawable = True
-
-        maxy, maxx = win.getmaxyx()
-
-        if maxy > 32:
-            win.attron(curses.color_pair(2))
-            win.hline(32, 0, curses.ACS_HLINE, maxx)
-            win.vline(32, 49, curses.ACS_VLINE, maxy)
-            win.addch(32, 49, curses.ACS_TTEE)
-            win.attroff(curses.color_pair(2))
-
-        self.wcontrols = win.derwin(30, maxx, 1, 0)
-
-        self.winfol = win.derwin(15, 45, 33, 2) if maxy > 33 else None
-        self.winfor = win.derwin(33, 52) if maxy > 33 else None
-
-    def redraw(self, recurse = False):
-        self.draw_controls()
-        self.draw_info()
-
-    def draw_controls(self):
-        # don't proceed if it's not even our turn to draw
-        if self.drawable is False:
-            return
-
-        # if we aren't active, this needn't even be considered
-        self.cursorCheck()
-
-        wcontrols = self.wcontrols
-        wcontrols.erase()
+    def draw_control(self, win, active = False):
 
         # gauge, one bar for each channel
-        gauge = wcontrols.derwin(22, self.channels+2, 2, 10-(self.channels/2))
+        gauge = win.derwin(22, self.channels+2, 2, 10-(self.channels/2))
         for i in range(0, self.channels):
             barheight = min(22, int(self.volume[i] * 18))
             # lowest eight
@@ -111,26 +89,20 @@ class Source(SubVolume):
                 gauge.attroff(curses.color_pair(2))
         gauge.border()
 
-        wcontrols.move(26, 5)
-        wcontrols.addstr("Source Volume", curses.A_BOLD if self.cursor == -1 else 0)
-        wcontrols.move(27, 7)
+        win.move(25, 2)
+        if self.origin != 'local':
+            win.addstr(self.origin[0:20].center(20), (curses.A_BOLD if active == -1 else 0) | (curses.color_pair(3) if self.is_tunnel else 0))
+        win.move(26, 2)
+        win.addstr(self.clean_name[0:20].center(20), (curses.A_BOLD if active == -1 else 0) | (curses.color_pair(2) if self.is_monitor else 0))
+        win.move(27, 7)
         if par.use_dezibel:
             volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)
-            wcontrols.addstr(('{:+3.2f}'.format(volume_db_avg) + " dB").rjust(9), curses.color_pair(2) if not self.volume_uniform() else 0)
+            win.addstr(('{:+3.2f}'.format(volume_db_avg) + " dB").rjust(9), curses.color_pair(2) if not self.volume_uniform() else 0)
         else:
             volume_avg = round(sum(self.volume) / len(self.volume), 2)
-            wcontrols.addstr(('{:3.2f}'.format(volume_avg * 100) + " %").rjust(9), curses.color_pair(2) if not self.volume_uniform() else 0)
+            win.addstr(('{:3.2f}'.format(volume_avg * 100) + " %").rjust(9), curses.color_pair(2) if not self.volume_uniform() else 0)
 
-        outputs = par.get_source_outputs_by_source(self.index)
-        i = 0
-        for output in outputs:
-            output.draw_control(wcontrols.derwin(2, 22 + i*25), self.cursor == i)
-            i += 1
-
-    def draw_info(self):
-        if self.drawable is False:
-            return
-
+    def draw_info(self, active):
         wleft = self.winfol
         wright = self.winfor
 
@@ -144,7 +116,7 @@ class Source(SubVolume):
         wleft.addstr("\nLatency:\t" + str(self.latency * 100))
         wleft.addstr("\nState:\t\t" + state_names[self.state])
 
-        if self.cursor == -1:
+        if active == -1:
             if(self.driver == "module-alsa-card.c") and 'alsa.card_name' in self.props:
                 wright.addstr("\nCard Name:\t" + self.props['alsa.card_name'])
             elif(self.driver == "module-tunnel.c"):
@@ -153,79 +125,23 @@ class Source(SubVolume):
                 # wright.addstr("\nRemote Source:\t" + self.props['tunnel.remote.description'])
                 pass
         else:
-            par.get_source_outputs_by_source(self.index)[self.cursor].draw_info(wright)
+            par.get_source_outputs_by_source(self.index)[active].draw_info(wright)
 
-    def cursorCheck(self):
-        """
-        Moves the cursor to the left until there is a source output,
-        or it's at the source's volume.
-        """
-        source_outputs = par.get_source_outputs_by_source(self.index)
-        while self.cursor >= len(source_outputs):
-            self.cursor -= 1
-        if self.cursor < -1:
-            self.cursor = -1
+    def clean_name_origin(self, name):
+        return name
 
     def key_event(self, event):
 
-        # change focus
-        if event == ord('h') or event == ord('l'):
-            self.cursor += -1 if event == ord('h') else +1
-            # cursorCheck happens here, too!
-            self.draw_controls()
-            self.draw_info()
-            return True
-
-        elif event in [ ord('k'), ord('K'), ord('j'), ord('J') ]:
-            if self.cursor == -1:
-                self.changeVolume(event == ord('k') or event == ord('K'), event == ord('K') or event == ord('J'))
-            else:
-                par.get_source_outputs_by_source(self.index)[self.cursor].changeVolume(event == ord('k') or event == ord('K'), event == ord('K') or event == ord('J'))
-
-            self.draw_controls()
+        if event in [ ord('k'), ord('K'), ord('j'), ord('J') ]:
+            self.changeVolume(event == ord('k') or event == ord('K'), event == ord('K') or event == ord('J'))
             return True
 
         elif event == ord('n'):
-            if self.cursor == -1:
-                self.setVolume(1.0)
-            else:
-                par.get_source_outputs_by_source(self.index)[self.cursor].setVolume(1.0)
-
-            self.draw_controls()
-            return True
-
-        elif event == ord('N'):
             self.setVolume(1.0)
-            source_outputs = par.get_source_outputs_by_source(self.index)
-            for source_output in source_outputs:
-                source_output.setVolume(1.0)
-
-            self.draw_controls()
             return True
 
         elif event == ord('m'):
-            if self.cursor == -1:
-                self.setVolume(0.0)
-            else:
-                par.get_source_outputs_by_source(self.index)[self.cursor].setVolume(0.0)
-
-            self.draw_controls()
-            return True
-
-        elif event == ord('M'):
             self.setVolume(0.0)
-            source_outputs = par.get_source_outputs_by_source(self.index)
-            for source_output in source_outputs:
-                source_output.setVolume(0.0)
-
-            self.draw_controls()
-            return True
-
-        elif event == ord('X'):
-            if self.cursor >= 0:
-                par.get_source_outputs_by_source(self.index)[self.cursor].kill()
-
-            self.draw_controls()
             return True
 
     def setVolume(self, value, hard = False, channels = None):
