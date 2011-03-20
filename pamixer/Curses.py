@@ -72,6 +72,8 @@ class Curses():
 
         maxy, maxx = self.screen.getmaxyx()
 
+        self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
+
         self.screen.refresh()
         if 'scrollStatus' in self.modes[self.active_mode].__class__.__dict__:
             scrolly = self.modes[self.active_mode].scrollStatus()
@@ -81,9 +83,20 @@ class Curses():
 
     def keyevent(self, event):
 
+        # ^R request update of info from pulseaudio
+        if event == 18: # ctrl-r
+            par.request_update()
+            self.screen.clear()
+            self.update()
+
+        # ^L redraw screen (clear for the flash, looks good!)
+        elif event == 12: # ctrl-l
+            self.screen.clear()
+            self.update()
+
         # go to a different screen
         # right side is < because the last screen, ScreenSinkInput, cannot be chosen this way!
-        if ord('1') <= event < ord(str(len(self.modes))):
+        elif ord('1') <= event < ord(str(len(self.modes))):
             self.switch_mode = event - ord('1')
             return False
 
@@ -148,8 +161,6 @@ class Curses():
         curses.init_pair(6, curses.COLOR_RED, -1);
 
         maxy, maxx = self.screen.getmaxyx()
-
-        self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
 
         self.subpad = curses.newpad(200, maxx)
         self.update()

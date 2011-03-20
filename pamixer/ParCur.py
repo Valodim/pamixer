@@ -73,6 +73,9 @@ class ParCur():
 
         self.update()
 
+    def request_update(self):
+        self.pa.pa_request_update()
+
     def move_all_sinks(self):
         if self.managed_output_name:
             for sink in self.pa_sink_inputs.values():

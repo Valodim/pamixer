@@ -90,6 +90,9 @@ class ScreenHelp():
 
        backspace\t: Previous screen
 
+       ^R\t\t: Force PA info update
+       ^L\t\t: Redraw screen
+
        u\t\t: Switch volume unit dB / percent
 """)
 

@@ -67,26 +67,7 @@ class PulseAudio():
                 self._pa_module_info_cb = pa_module_info_cb_t(self.pa_module_info_cb)
                 self._pa_context_index_cb = pa_context_index_cb_t(self.pa_context_index_cb) 
 
-                o = pa_context_get_module_info_list(self._context, self._pa_module_info_cb, True)
-                pa_operation_unref(o)
-
-                o = pa_context_get_source_info_list(self._context, self._pa_source_info_cb, True)
-                pa_operation_unref(o)
-
-                o = pa_context_get_client_info_list(self._context, self._pa_client_info_list_cb, None)
-                pa_operation_unref(o)
-
-                o = pa_context_get_source_output_info_list(self._context, self._pa_source_output_info_cb, None)
-                pa_operation_unref(o)
-
-                o = pa_context_get_sink_info_list(self._context, self._pa_sink_info_cb, None)
-                pa_operation_unref(o)
-
-                o = pa_context_get_sample_info_list(self._context, self._pa_sample_info_list_cb, True)
-                pa_operation_unref(o)
-
-                o = pa_context_get_sink_input_info_list(self._context, self._pa_sink_input_info_list_cb, True)
-                pa_operation_unref(o)
+                self.pa_request_update()
 
                 pa_context_set_subscribe_callback(self._context, self._pa_context_subscribe_cb, None);
                 o = pa_context_subscribe(self._context, (pa_subscription_mask_t)
@@ -117,6 +98,27 @@ class PulseAudio():
             print "ERROR context_notify_cb %s" % text
             raise Exception
 
+    def pa_request_update(self):
+        o = pa_context_get_module_info_list(self._context, self._pa_module_info_cb, True)
+        pa_operation_unref(o)
+
+        o = pa_context_get_source_info_list(self._context, self._pa_source_info_cb, True)
+        pa_operation_unref(o)
+
+        o = pa_context_get_client_info_list(self._context, self._pa_client_info_list_cb, None)
+        pa_operation_unref(o)
+
+        o = pa_context_get_source_output_info_list(self._context, self._pa_source_output_info_cb, None)
+        pa_operation_unref(o)
+
+        o = pa_context_get_sink_info_list(self._context, self._pa_sink_info_cb, None)
+        pa_operation_unref(o)
+
+        o = pa_context_get_sample_info_list(self._context, self._pa_sample_info_list_cb, True)
+        pa_operation_unref(o)
+
+        o = pa_context_get_sink_input_info_list(self._context, self._pa_sink_input_info_list_cb, True)
+        pa_operation_unref(o)
 
     def pa_context_index_cb(self, context, index, user_data):
         # Do nothing....
