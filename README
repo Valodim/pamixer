@@ -11,11 +11,11 @@ What's working:
  - moving sink inputs around
  - volume of sources and source outputs
  - controlling channel levels individually
+ - some sample management
 
 TODO:
  - robustnes of ui, probably tons of curses newbie mistakes in there
  - finish script execution
- - more sample management
  - more and better structured info
  - cards screen (ie, for profile changing)
  - bugs, bugs, bugs
