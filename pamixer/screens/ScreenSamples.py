@@ -103,6 +103,7 @@ class ScreenSamples():
        k / Down\t: Move Cursor down
 
        p / Enter\t: Play sample
+
 """)
 
 from ..ParCur import par

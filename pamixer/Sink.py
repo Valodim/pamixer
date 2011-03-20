@@ -30,6 +30,7 @@ class Sink(SubVolume):
         self.name = struct.name
         self.driver = struct.driver
         self.latency = struct.latency
+        self.configured_latency = struct.configured_latency
         self.state = struct.state
         self.props = props
 
@@ -128,6 +129,32 @@ class Sink(SubVolume):
             i += 1
 
     def draw_info(self):
+        """ Draws a bunch of information on the winfol and winfor windows """
+        """
+        ('name', STRING),
+        ('index', uint32_t),
+        ('description', STRING),
+        ('sample_spec', pa_sample_spec),
+        ('channel_map', pa_channel_map),
+        ('owner_module', uint32_t),
+        ('volume', pa_cvolume),
+        ('mute', c_int),
+        ('monitor_source', uint32_t),
+        ('monitor_source_name', STRING),
+        ('latency', pa_usec_t),
+        ('driver', STRING),
+        ('flags', pa_sink_flags_t),
+        ('proplist', POINTER(pa_proplist)),
+        ('configured_latency', pa_usec_t),
+        ('base_volume', pa_volume_t),
+        ('state', pa_sink_state_t),
+        ('n_volume_steps', uint32_t),
+        ('card', uint32_t),
+        ('n_ports', uint32_t),
+        ('ports', POINTER(POINTER(pa_sink_port_info))),
+        ('active_port', POINTER(pa_sink_port_info)),
+        """
+
         if self.drawable is False:
             return
 
@@ -141,17 +168,30 @@ class Sink(SubVolume):
         wleft.addstr(self.name.center(36) + "\n")
 
         wleft.addstr("\nDriver:\t\t" + self.driver)
-        wleft.addstr("\nLatency:\t" + str(self.latency * 100))
         wleft.addstr("\nState:\t\t" + state_names[self.state])
+        wleft.addstr("\nActual Latency:\t" + '{:3.2f}ms'.format(self.latency / 1000))
+        wleft.addstr("\nConfig Latency:\t" + '{:3.2f}ms'.format(self.configured_latency / 1000))
 
         if self.cursor == -1:
-            if(self.driver == "module-alsa-sink.c") and 'alsa.card_name' in self.props:
-                wright.addstr("\nCard Name:\t" + self.props['alsa.card_name'])
-            elif(self.driver == "module-tunnel.c"):
-                wright.addstr("\nServer:\t\t" + self.props['tunnel.remote.server'])
-                wright.addstr("\nRemote User:\t" + self.props['tunnel.remote.user'])
-                wright.addstr("\nRemote Sink:\t" + self.props['tunnel.remote.description'])
+            wright.addstr("\tSink Properties\n")
+
+            proplist = {
+                    'alsa.name': 'Alsa Name',
+                    'alsa.card_name': 'Card Name',
+                    'device.bus': 'Bus',
+                    'device.string': 'Device',
+                    'device.form_factor': 'Hardware Type',
+                    'tunnel.remote.server': 'Server',
+                    'tunnel.remote.user': 'Remote User',
+                    'tunnel.remote.description': 'Remote Sink',
+                    'tunnel.remote.fqdn': 'Remote DNS',
+                }
+
+            for prop in proplist:
+                if prop in self.props:
+                    wright.addstr("\n" + (proplist[prop] + ':').ljust(20) + self.props[prop].strip())
         else:
+            wright.addstr("\tSink Input Info\n")
             par.get_sink_inputs_by_sink(self.index)[self.cursor].draw_info(wright)
 
     def cursorCheck(self):
@@ -249,30 +289,5 @@ class Sink(SubVolume):
 
     def still_exists(self):
         return self.index in par.pa_sinks
-
-    """
-    ('name', STRING),
-    ('index', uint32_t),
-    ('description', STRING),
-    ('sample_spec', pa_sample_spec),
-    ('channel_map', pa_channel_map),
-    ('owner_module', uint32_t),
-    ('volume', pa_cvolume),
-    ('mute', c_int),
-    ('monitor_source', uint32_t),
-    ('monitor_source_name', STRING),
-    ('latency', pa_usec_t),
-    ('driver', STRING),
-    ('flags', pa_sink_flags_t),
-    ('proplist', POINTER(pa_proplist)),
-    ('configured_latency', pa_usec_t),
-    ('base_volume', pa_volume_t),
-    ('state', pa_sink_state_t),
-    ('n_volume_steps', uint32_t),
-    ('card', uint32_t),
-    ('n_ports', uint32_t),
-    ('ports', POINTER(POINTER(pa_sink_port_info))),
-    ('active_port', POINTER(pa_sink_port_info)),
-    """
 
 from ParCur import par

@@ -48,8 +48,7 @@ class SinkInput(SubVolume):
 
     def draw_info(self, win):
         """ general information """
-        win.move(0, 0)
-        win.addstr(self.name.center(40) + "\n")
+        win.addstr("\nName:\t" + self.name + "\n")
 
         win.addstr("\nDriver:\t\t" + self.driver)
         if self.client is not None:
