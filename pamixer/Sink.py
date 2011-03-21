@@ -72,11 +72,11 @@ class Sink(SubVolume):
         self.winfol = win.derwin(15, 45, 33, 2) if maxy > 33 else None
         self.winfor = win.derwin(33, 52) if maxy > 33 else None
 
-    def redraw(self, recurse = False):
-        self.draw_controls()
+    def redraw(self, recurse = False, active = False):
+        self.draw_controls(active)
         self.draw_info()
 
-    def draw_controls(self):
+    def draw_controls(self, active = False):
         # don't proceed if it's not even our turn to draw
         if self.drawable is False:
             return
@@ -124,7 +124,7 @@ class Sink(SubVolume):
         inputs = par.get_sink_inputs_by_sink(self.index)
         i = 0
         for input in inputs:
-            input.draw_control(wcontrols.derwin(2, 22 + i*25), self.cursor == i)
+            input.draw_control(wcontrols.derwin(2, 22 + i*25), (curses.A_BOLD | (curses.color_pair(4) if active else 0)) if self.cursor == i else 0)
             i += 1
 
     def draw_info(self):

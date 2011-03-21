@@ -24,7 +24,7 @@ class SinkInput(SubVolume):
 
         SubVolume.update(self, struct)
 
-    def draw_control(self, win, active):
+    def draw_control(self, win, name_color = 0):
         """ single volume control """
 
         # draw volume gauge, just an average
@@ -37,7 +37,7 @@ class SinkInput(SubVolume):
             win.move(23, 3)
             win.addstr(par.pa_clients[self.client].clean_name[0:20].center(20), curses.color_pair(2) if par.pa_clients[self.client].clean_name != par.pa_clients[self.client].name else 0)
         win.move(24, 3)
-        win.addstr(self.name[0:20].center(20), curses.A_BOLD if active else 0)
+        win.addstr(self.name[0:20].center(20), name_color)
         win.move(25, 7)
         if par.use_dezibel:
             volume_db_avg = round(sum(self.volume_db) / len(self.volume_db), 2)

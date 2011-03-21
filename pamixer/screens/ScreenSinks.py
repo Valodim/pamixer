@@ -87,7 +87,7 @@ class ScreenSinks():
             i += 1
 
         if recurse and self.active_sink >= 0 and self.active_sink < len(par.pa_sinks):
-            par.pa_sinks.values()[self.active_sink].redraw(True)
+            par.pa_sinks.values()[self.active_sink].redraw(True, self.mode == MODE_MOVE)
 
         return
 
@@ -97,7 +97,8 @@ class ScreenSinks():
             # cheating a little here, don't allow move on the own volume
             if event == ord("C") and par.pa_sinks.values()[self.active_sink].cursor >= 0:
                 self.mode = MODE_MOVE
-                return True
+                self.redraw(True)
+                return False
 
             # sink range
             for i in range(0, min(len(self.sinkchars), len(par.pa_sinks))):
