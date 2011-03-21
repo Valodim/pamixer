@@ -19,13 +19,13 @@ channel_names[PA_CHANNEL_POSITION_SIDE_LEFT] = 'side right';
 channel_picto = {
         PA_CHANNEL_POSITION_FRONT_LEFT: [ 'FL', 0, 0 ],
         PA_CHANNEL_POSITION_FRONT_RIGHT: [ 'FR', 0, 7 ],
-        PA_CHANNEL_POSITION_FRONT_CENTER: [ 'C', 1, 3 ],
-        PA_CHANNEL_POSITION_REAR_CENTER: [ 'C', 1, 3 ],
-        PA_CHANNEL_POSITION_REAR_LEFT: [ 'RL', 3, 6 ],
-        PA_CHANNEL_POSITION_REAR_RIGHT: [ 'RR', 1, 3 ],
-        PA_CHANNEL_POSITION_LFE: [ 'S', 2, 4 ],
-        PA_CHANNEL_POSITION_FRONT_LEFT_OF_CENTER: [ 'FL', 0, 0 ],
-        PA_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER: [ 'FR', 0, 7 ],
+        PA_CHANNEL_POSITION_FRONT_CENTER: [ 'C', 1, 4 ],
+        PA_CHANNEL_POSITION_REAR_CENTER: [ 'c', 3, 4 ],
+        PA_CHANNEL_POSITION_REAR_LEFT: [ 'RL', 4, 0 ],
+        PA_CHANNEL_POSITION_REAR_RIGHT: [ 'RR', 4, 7 ],
+        PA_CHANNEL_POSITION_LFE: [ 'S', 2, 5 ],
+        PA_CHANNEL_POSITION_FRONT_LEFT_OF_CENTER: [ 'CL', 1, 1 ],
+        PA_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER: [ 'CR', 1, 6 ],
         PA_CHANNEL_POSITION_SIDE_LEFT: [ 'L', 2, 0 ],
         PA_CHANNEL_POSITION_SIDE_LEFT: [ 'R', 2, 7 ],
 }
@@ -38,6 +38,9 @@ class SubVolume(object):
         self.volume_db = [ ]
 
         self.drawable_volume = False
+
+        self.wcontrols = None
+        self.win = None
 
         self.cursor_volume = 0
 
@@ -59,6 +62,7 @@ class SubVolume(object):
 
         self.drawable_volume = True
 
+        self.win = win
         self.wcontrols = win.derwin(4, 6)
 
     def redraw_volume(self, recurse = False):
@@ -74,6 +78,9 @@ class SubVolume(object):
 
         wcontrols = self.wcontrols
         wcontrols.erase()
+
+        self.win.move(0, 3)
+        self.win.addstr(self.name)
 
         self.draw_picto(wcontrols.derwin(30, 5), self.cursor_volume)
 
@@ -165,6 +172,7 @@ class SubVolume(object):
                 win.attroff(curses.color_pair(2))
 
     def draw_picto(self, win, cursor = False):
+        """ Draws a neat little pictogram of the speaker setup """
         for i in range(0, self.channels):
             picto = channel_picto[self.channel_map[i]]
             win.move(picto[1], picto[2])
