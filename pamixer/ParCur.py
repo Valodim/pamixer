@@ -44,6 +44,8 @@ class ParCur():
             self.__print("removed pa output", self.pa_sources[index])
             del self.pa_sources[index]
 
+            self.update()
+
     def on_new_pa_source(self, index, struct, props):
         if not self.pa_sources.has_key(index):
             self.__print("new source:", index, struct.name)
@@ -71,7 +73,7 @@ class ParCur():
             self.__print("remove source output", index)
             del self.pa_source_outputs[index]
 
-        self.update()
+            self.update()
 
     def request_update(self):
         self.pa.pa_request_update()
@@ -139,7 +141,7 @@ class ParCur():
             self.__print("remove sink input", index)
             del self.pa_sink_inputs[index]
 
-        self.update()
+            self.update()
 
     def on_new_sample(self, index, struct, props):
         if not self.pa_samples.has_key(index):
@@ -218,7 +220,7 @@ class ParCur():
         self.pa.kill_sink_input(index)
 
     def update(self):
-        print "\a"
+        sys.stdout.write("\a")
         sys.stdout.flush()
         # return
         if self.cur:

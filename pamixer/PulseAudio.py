@@ -376,5 +376,5 @@ class PulseAudio():
         pa_ext_stream_restore_delete(self._context, names, self._pa_context_success_cb, None)
 
     def __print(self, text):
-        sys.stderr.write(str(text))
+        # sys.stderr.write(str(text))
         return
