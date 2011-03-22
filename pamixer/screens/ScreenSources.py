@@ -97,7 +97,7 @@ class ScreenSources():
         # return par.pa_sources.values()[self.active_source].key_event(event)
 
     def getActiveVolume(self):
-        return par.pa_sources.values()[self.active_source].getActiveVolume()
+        return None # par.pa_sources.values()[self.active_source].getActiveVolume()
 
     def draw_help(self, win):
         win.attron(curses.A_BOLD)

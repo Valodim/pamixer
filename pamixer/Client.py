@@ -63,7 +63,7 @@ class Client():
         inputs = par.get_sink_inputs_by_client(self.index)
         i = 0
         for input in inputs:
-            input.draw_control(wcontrols.derwin(2, 2 + i*20), self.cursor == i)
+            input.draw_control(wcontrols.derwin(2, 2 + i*20),  curses.A_BOLD if self.cursor == i else 0)
             i += 1
 
     def draw_info(self):
