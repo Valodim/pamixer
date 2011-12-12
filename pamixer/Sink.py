@@ -61,17 +61,32 @@ class Sink(SubVolume):
 
         maxy, maxx = win.getmaxyx()
 
-        if maxy > 32:
+        # got enough space for the info windows?
+        if maxy > 48:
             win.attron(curses.color_pair(2))
             win.hline(32, 0, curses.ACS_HLINE, maxx)
-            win.vline(32, 49, curses.ACS_VLINE, maxy)
-            win.addch(32, 49, curses.ACS_TTEE)
             win.attroff(curses.color_pair(2))
 
-        self.wcontrols = win.derwin(30, maxx, 1, 0)
+            self.winfol = win.derwin(15, 45, 33, 2)
 
-        self.winfol = win.derwin(15, 45, 33, 2) if maxy > 33 else None
-        self.winfor = win.derwin(33, 52) if maxy > 33 else None
+            # right side, too?
+            if maxx > 87:
+                win.attron(curses.color_pair(2))
+                win.vline(32, 49, curses.ACS_VLINE, maxy)
+                win.addch(32, 49, curses.ACS_TTEE)
+                win.attroff(curses.color_pair(2))
+
+                self.winfor = win.derwin(33, 52)
+            else:
+                # no right side info window..
+                self.winfor = None
+
+        else:
+            # too bad, don't show this either.
+            self.winfol = None
+            self.winfor = None
+
+        self.wcontrols = win.derwin(30, maxx, 1, 0)
 
     def redraw(self, recurse = False, active = False):
         self.draw_controls(active)
@@ -150,18 +165,19 @@ class Sink(SubVolume):
 
         # left/right indicator
         if self.padding > 0:
-            wcontrols.move(10,20)
+            wcontrols.move(10,24)
             wcontrols.addstr("<")
-            wcontrols.move(11,20)
+            wcontrols.move(11,24)
             wcontrols.addstr("<")
-            wcontrols.move(12,20)
+            wcontrols.move(12,24)
             wcontrols.addstr("<")
         if len(inputs)-self.padding > show_max:
-            wcontrols.move(10, 42+i*25)
+            x = min(42+(i-self.padding)*25, maxx-2)
+            wcontrols.move(10, x)
             wcontrols.addstr(">")
-            wcontrols.move(11, 42+i*25)
+            wcontrols.move(11, x)
             wcontrols.addstr(">")
-            wcontrols.move(12, 42+i*25)
+            wcontrols.move(12, x)
             wcontrols.addstr(">")
 
     def draw_info(self):
@@ -194,11 +210,11 @@ class Sink(SubVolume):
         if self.drawable is False:
             return
 
-        wleft = self.winfol
-        wright = self.winfor
+        if self.winfol is None:
+            return
 
+        wleft = self.winfol
         wleft.erase()
-        wright.erase()
 
         wleft.move(0, 0)
         wleft.addstr(self.name.center(36) + "\n")
@@ -209,6 +225,12 @@ class Sink(SubVolume):
         wleft.addstr("\nConfig Latency:\t" + '{:3.2f}ms'.format(self.configured_latency / 1000))
 
         self.draw_picto(wleft.derwin(7, 35))
+
+        if self.winfor is None:
+            return
+
+        wright = self.winfor
+        wright.erase()
 
         if self.cursor == -1:
             wright.addstr("\tSink Properties\n")
