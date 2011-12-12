@@ -169,6 +169,14 @@ class Curses():
             # anything happen?
             event = self.screen.getch()
 
+            # resize screen = allocate new pad
+            if event == curses.KEY_RESIZE:
+                if self.subpad is not None:
+                    maxy, maxx = self.screen.getmaxyx()
+                    self.subpad = curses.newpad(200, maxx)
+                    self.update()
+                continue
+
             # maybe it's an event on the lower layers?
             if self.keyevent(event):
                 self.redraw()
