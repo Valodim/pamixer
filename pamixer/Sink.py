@@ -134,17 +134,21 @@ class Sink(SubVolume):
 
         # is the cursor higher than the current padding+show_max?
         if self.padding < self.cursor+1 -show_max:
-            self.padding = max(0, self.cursor+1 -show_max)
+            self.padding = self.cursor+1 -show_max
 
         if self.padding > self.cursor:
-            self.padding = max(0, self.cursor)
+            self.padding = self.cursor
+
+        if self.padding < 0:
+            self.padding = 0
 
         # how many can we draw?
         for i in range(self.padding, min(self.padding+show_max, len(inputs))):
-            wcontrols.move(0, 32+(i-self.padding)*25)
-            wcontrols.addstr("#" + str(inputs[i].index))
+            # wcontrols.move(0, 32+(i-self.padding)*25)
+            # wcontrols.addstr("#" + str(inputs[i].index))
             inputs[i].draw_control(wcontrols.derwin(2, 22 + (i-self.padding)*25), (curses.A_BOLD | (curses.color_pair(4) if active else 0)) if self.cursor == i else 0)
 
+        # left/right indicator
         if self.padding > 0:
             wcontrols.move(10,20)
             wcontrols.addstr("<")
@@ -153,11 +157,11 @@ class Sink(SubVolume):
             wcontrols.move(12,20)
             wcontrols.addstr("<")
         if len(inputs)-self.padding > show_max:
-            wcontrols.move(10, 47+i*25)
+            wcontrols.move(10, 42+i*25)
             wcontrols.addstr(">")
-            wcontrols.move(11, 47+i*25)
+            wcontrols.move(11, 42+i*25)
             wcontrols.addstr(">")
-            wcontrols.move(12, 47+i*25)
+            wcontrols.move(12, 42+i*25)
             wcontrols.addstr(">")
 
     def draw_info(self):
