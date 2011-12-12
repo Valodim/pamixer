@@ -26,6 +26,7 @@ class Sink(SubVolume):
 
         # -1 is volume, 0 and above are sink inputs
         self.cursor = -1
+        self.padding = 0
 
     def update(self, struct, props):
         self.name = struct.name
@@ -122,10 +123,42 @@ class Sink(SubVolume):
             wcontrols.addstr(('{:3.2f}'.format(volume_avg * 100) + " %").rjust(9), curses.color_pair(2) if not self.volume_uniform() else 0)
 
         inputs = par.get_sink_inputs_by_sink(self.index)
-        i = 0
-        for input in inputs:
-            input.draw_control(wcontrols.derwin(2, 22 + i*25), (curses.A_BOLD | (curses.color_pair(4) if active else 0)) if self.cursor == i else 0)
-            i += 1
+
+        # we might not be able to draw all controls..
+        maxy, maxx = wcontrols.getmaxyx()
+        show_max = (maxx-18)/25
+
+        # unreasonably high padding?
+        if self.padding > len(inputs) -show_max:
+            self.padding = len(inputs) -show_max
+
+        # is the cursor higher than the current padding+show_max?
+        if self.padding < self.cursor+1 -show_max:
+            self.padding = max(0, self.cursor+1 -show_max)
+
+        if self.padding > self.cursor:
+            self.padding = max(0, self.cursor)
+
+        # how many can we draw?
+        for i in range(self.padding, min(self.padding+show_max, len(inputs))):
+            wcontrols.move(0, 32+(i-self.padding)*25)
+            wcontrols.addstr("#" + str(inputs[i].index))
+            inputs[i].draw_control(wcontrols.derwin(2, 22 + (i-self.padding)*25), (curses.A_BOLD | (curses.color_pair(4) if active else 0)) if self.cursor == i else 0)
+
+        if self.padding > 0:
+            wcontrols.move(10,20)
+            wcontrols.addstr("<")
+            wcontrols.move(11,20)
+            wcontrols.addstr("<")
+            wcontrols.move(12,20)
+            wcontrols.addstr("<")
+        if len(inputs)-self.padding > show_max:
+            wcontrols.move(10, 47+i*25)
+            wcontrols.addstr(">")
+            wcontrols.move(11, 47+i*25)
+            wcontrols.addstr(">")
+            wcontrols.move(12, 47+i*25)
+            wcontrols.addstr(">")
 
     def draw_info(self):
         """ Draws a bunch of information on the winfol and winfor windows """
