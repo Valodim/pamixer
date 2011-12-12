@@ -212,7 +212,8 @@ class SubVolume(object):
         for i in range(0, len(self.volume)):
             # apply new value?
             if channels is None or i in channels:
-                volume.append(max(0.0, min(par.volume_max_hard if hard else par.volume_max_soft, self.volume[i] + (par.volume_step if up else -par.volume_step))))
+                step = par.volume_step_hard if hard else par.volume_step
+                volume.append(max(0.0, min(par.volume_max_hard if hard else par.volume_max_soft, self.volume[i] + (step if up else -step))))
             else:
                 volume.append(self.volume[i])
 

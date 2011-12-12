@@ -24,8 +24,9 @@ class ParCur():
         # whether to use dB or linear for numeric volume display
         self.use_dezibel = True
         self.volume_step = 0.05
+        self.volume_step_hard = 0.01
         self.volume_max_soft = 1.00
-        self.volume_max_hard = 1.50
+        self.volume_max_hard = 5.00
 
     def run(self, server = None):
         self.pa = PulseAudio(self.on_new_pa_client, self.on_remove_pa_client, self.on_new_pa_sink, self.on_remove_pa_sink, self.on_new_pa_sink_input, self.on_remove_pa_sink_input, self.on_volume_change, self.on_new_sample, self.on_remove_sample, self.on_new_pa_source, self.on_remove_pa_source, self.on_new_pa_source_output, self.on_remove_pa_source_output, server)
