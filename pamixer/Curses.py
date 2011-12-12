@@ -75,11 +75,15 @@ class Curses():
         self.screen.hline(1, 0, curses.ACS_HLINE, maxx)
 
         self.screen.refresh()
-        if 'scrollStatus' in self.modes[self.active_mode].__class__.__dict__:
-            scrolly = self.modes[self.active_mode].scrollStatus()
-            self.subpad.refresh(scrolly, 0, 2, 0, maxy-1, maxx)
-        else:
-            self.subpad.refresh(0, 0, 2, 0, maxy-1, maxx)
+        try:
+            if 'scrollStatus' in self.modes[self.active_mode].__class__.__dict__:
+                scrolly = self.modes[self.active_mode].scrollStatus()
+                self.subpad.refresh(scrolly, 0, 2, 0, maxy-1, maxx)
+            else:
+                self.subpad.refresh(0, 0, 2, 0, maxy-1, maxx)
+        except:
+            self.screen.move(10, 10)
+            self.screen.addstr("Error redrawing - you should never see this?")
 
     def keyevent(self, event):
 
