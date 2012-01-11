@@ -200,4 +200,4 @@ from screens.ScreenSources import ScreenSources
 from screens.ScreenSamples import ScreenSamples
 from screens.ScreenVolume import ScreenVolume
 
-from ParCur import par
+from pulse.ParCur import par

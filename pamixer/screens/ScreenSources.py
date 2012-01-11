@@ -1,6 +1,6 @@
 import curses 
 
-from ..PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
+from ..pulse.PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 
 class ScreenSources():
 
@@ -121,4 +121,4 @@ class ScreenSources():
 
 """)
 
-from ..ParCur import par
+from ..pulse.ParCur import par

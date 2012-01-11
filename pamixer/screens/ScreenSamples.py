@@ -106,4 +106,4 @@ class ScreenSamples():
 
 """)
 
-from ..ParCur import par
+from ..pulse.ParCur import par

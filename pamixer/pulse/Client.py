@@ -1,9 +1,6 @@
-import re
-import time
-import datetime
 import curses
 
-from xml.dom.minidom import *
+from ParCur import par
 
 class Client():
 
@@ -172,5 +169,3 @@ class Client():
             self.cursor = 0
         if len(client_inputs) == 0:
             self.cursor = -1
-
-from ParCur import par

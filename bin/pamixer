@@ -10,7 +10,7 @@ except ImportError:
     sys.stderr.write("Could not find libpulseaudio - did you sudo pip install libpulseaudio?")
     sys.exit(1)
 
-from pamixer.ParCur import par
+from pamixer.pulse.ParCur import par
 from pamixer.Curses import Curses
 
 if __name__ == '__main__':
@@ -27,6 +27,6 @@ if __name__ == '__main__':
 
     time.sleep(0.1)
 
-    par.cur = cur
+    par.callback = cur
     # and run
     cur.run()

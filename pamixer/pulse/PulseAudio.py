@@ -1,6 +1,5 @@
 from pulseaudio.lib_pulseaudio import *
 import sys 
-import os
 import ctypes
 
 from PulseAudio import PA_VOLUME_NORM

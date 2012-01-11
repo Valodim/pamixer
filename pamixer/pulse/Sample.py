@@ -1,11 +1,7 @@
-import re
-import time
-import datetime
 import curses
 
-from xml.dom.minidom import *
-
-from classes.SubVolume import SubVolume
+from ParCur import par
+from ..classes.SubVolume import SubVolume
 
 class Sample(SubVolume):
 
@@ -66,8 +62,6 @@ class Sample(SubVolume):
 
     def play(self, sink_index = -1):
         par.sample_play(self.name, sink_index)
-
-from pamixer.ParCur import par
 
 """
     ('index', uint32_t),

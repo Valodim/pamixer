@@ -1,18 +1,11 @@
-import time
-import datetime
-import re
-import os
-import copy
 import sys
-import shutil
-from xml.dom.minidom import *
 
 from pamixer.PulseAudio import PulseAudio 
 
 class ParCur():
 
     def __init__(self):
-        self.cur = None
+        self.callback = None
 
         self.pa_samples = {}  # samples by id
         self.pa_clients = {}  # clients by id
@@ -224,17 +217,16 @@ class ParCur():
         sys.stdout.write("\a")
         sys.stdout.flush()
         # return
-        if self.cur:
-            self.cur.update()
+        if self.callback:
+            self.callback.update()
 
     def __print(self, *args):
-        if self.cur and self.cur.verbose:
+        if self.callback and self.callback.verbose:
             sys.stderr.write(str(args))
         return
 
 par = ParCur()
 
-from Curses import Curses
 from Client import Client
 from Sink import Sink
 from SinkInput import SinkInput
