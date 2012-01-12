@@ -7,6 +7,7 @@ from screens.ScreenClients import ScreenClients
 from screens.ScreenSources import ScreenSources
 from screens.ScreenSamples import ScreenSamples
 from screens.ScreenVolume import ScreenVolume
+from screens.ScreenEqualizer import ScreenEqualizer
 
 class Curses():
 
@@ -18,7 +19,7 @@ class Curses():
         self.verbose = verbose
 
         # initialize modes
-        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenSources(), ScreenSamples(), ScreenVolume() ]
+        self.modes = [ ScreenHelp(), ScreenSinks(), ScreenClients(), ScreenSources(), ScreenSamples(), ScreenEqualizer(), ScreenVolume() ]
 
         # append help messages from modes. ScreenHelp has global help, too!
         for i in range(0, len(self.modes)):
@@ -71,7 +72,9 @@ class Curses():
         self.screen.addstr("4", curses.A_BOLD)
         self.screen.addstr(":Sources  ", curses.A_BOLD if self.active_mode == 3 else 0)
         self.screen.addstr("5", curses.A_BOLD)
-        self.screen.addstr(":Samples", curses.A_BOLD if self.active_mode == 4 else 0)
+        self.screen.addstr(":Samples  ", curses.A_BOLD if self.active_mode == 4 else 0)
+        self.screen.addstr("6", curses.A_BOLD)
+        self.screen.addstr(":Equalizer", curses.A_BOLD if self.active_mode == 5 else 0)
 
         self.modes[self.active_mode].redraw(True)
 
@@ -129,11 +132,11 @@ class Curses():
                 # if we can get one, go to the sink input screen
                 input = self.modes[self.active_mode].getActiveVolume()
                 if input is not None:
-                    self.modes[5].setActiveVolume(input)
-                    self.switch_mode = 5
+                    self.modes[6].setActiveVolume(input)
+                    self.switch_mode = 6
                     return False
 
-            elif self.active_mode == 5:
+            elif self.active_mode == 6:
                 self.switch_mode = self.last_mode
                 return False
 
