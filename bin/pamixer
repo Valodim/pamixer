@@ -11,6 +11,7 @@ except ImportError:
     sys.exit(1)
 
 from pamixer.pulse.ParCur import par
+from pamixer.dbus.Equalizer import eq
 from pamixer.Curses import Curses
 
 if __name__ == '__main__':
@@ -22,11 +23,15 @@ if __name__ == '__main__':
 
     cur = Curses(args.verbose)
 
+    eq.callback = cur
+
     # ok now we update
     par.run(args.server)
+    eq.run(args.server)
 
     time.sleep(0.1)
 
     par.callback = cur
+
     # and run
     cur.run()
