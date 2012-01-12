@@ -52,19 +52,28 @@ class EqSink():
         self.cursor = -1
         self.padding = 0
 
-        self.sink.connect_to_signal('FilterChanged', self.asdf)
+        #set the signal listener for this sink
+        core_iface='org.PulseAudio.Core1'
+        core_path='/org/pulseaudio/core1'
+        manager_path='/org/pulseaudio/equalizing1'
+        core_obj = Equalizer.bus.get_object(object_path=core_path)
+        core = dbus.Interface(core_obj,dbus_interface=core_iface)
 
-    def asdf(self):
-        sys.stderr.write("hahaha")
+        #temporary hack until signal filtering works properly
+        core.ListenForSignal('',[dbus.ObjectPath(self.index),dbus.ObjectPath(manager_path)])
+        self.sink.connect_to_signal('FilterChanged', self.update)
 
-    def update(self, sink):
+    def update(self, sink = None):
 
-        self.sink_props = dbus.Interface(sink, dbus_interface=prop_iface)
-        self.sink = dbus.Interface(sink, dbus_interface=eq_iface)
+        if sink is not None:
+            self.sink_props = dbus.Interface(sink, dbus_interface=prop_iface)
+            self.sink = dbus.Interface(sink, dbus_interface=eq_iface)
 
         coefs, preamp = self.sink.FilterAtPoints(self.channel, self.filter_frequencies)
         self.coefficients = coefs
         self.preamp = preamp
+
+        eq.callback.update()
 
         # sys.stderr.write(str(map(EqSink.hz2str, self.frequencies)))
         # sys.stderr.write(str(map(EqSink.coef2slider, self.coefficients)))
@@ -341,3 +350,4 @@ class EqSink():
 
 from ..pulse.ParCur import par
 from Equalizer import eq
+import Equalizer
