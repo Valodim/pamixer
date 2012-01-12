@@ -12,15 +12,17 @@ What's working:
  - volume of sources and source outputs
  - controlling channel levels individually
  - some sample management
+ - experimental, basic equalizer support
 
-TODO:
+TODO (in no particular order):
  - robustnes of ui, probably tons of curses newbie mistakes in there
- - finish script execution
  - more and better structured info
+ - equalizer profiles
+ - equalizer by channel
+ - equalizer event listening?
+ - finish script execution (is that even possible?)
  - cards screen (ie, for profile changing)
  - bugs, bugs
 
 This package depends on argparse and libpulseaudio.
 
-The bindings were made for pulseaudio 0.9.22, so they probably crash
-and burn for older versions.
