@@ -1,6 +1,6 @@
 import sys
 
-from pamixer.PulseAudio import PulseAudio 
+from PulseAudio import PulseAudio
 
 class ParCur():
 

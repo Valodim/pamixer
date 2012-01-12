@@ -3,6 +3,13 @@ import time
 import sys
 import threading
 
+from screens.ScreenHelp import ScreenHelp
+from screens.ScreenSinks import ScreenSinks
+from screens.ScreenClients import ScreenClients
+from screens.ScreenSources import ScreenSources
+from screens.ScreenSamples import ScreenSamples
+from screens.ScreenVolume import ScreenVolume
+
 class Curses():
 
     def __init__(self, verbose = False):
@@ -192,12 +199,5 @@ class Curses():
 
             # no char hit? well, at least redraw..
             self.update()
-
-from screens.ScreenHelp import ScreenHelp
-from screens.ScreenSinks import ScreenSinks
-from screens.ScreenClients import ScreenClients
-from screens.ScreenSources import ScreenSources
-from screens.ScreenSamples import ScreenSamples
-from screens.ScreenVolume import ScreenVolume
 
 from pulse.ParCur import par
