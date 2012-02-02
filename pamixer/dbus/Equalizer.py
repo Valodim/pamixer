@@ -17,7 +17,8 @@ def connect():
             address = server_lookup.Get('org.PulseAudio.ServerLookup1', 'Address', dbus_interface='org.freedesktop.DBus.Properties')
         return dbus.connection.Connection(address)
     except Exception,e:
-        self.__print('error: could not connect')
+        print >> sys.stderr, 'error: could not connect'
+        return None
 
 bus = connect()
 
@@ -43,6 +44,8 @@ class Equalizer():
         self.volume_max_hard = 5.00
 
     def run(self, server = None):
+        if bus is None:
+            return
 
         # get dbus objects
         self.manager_obj = bus.get_object(object_path=self.manager_path)
