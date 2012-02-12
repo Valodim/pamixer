@@ -1,5 +1,4 @@
 import curses 
-import os 
 
 from ..PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
 
@@ -117,5 +116,3 @@ class ScreenScripts():
 
     def draw_help(self, win):
         pass
-
-from ..ParCur import par

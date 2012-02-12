@@ -85,5 +85,3 @@ class ScreenVolume():
 
 """)
 
-from ..pulse.ParCur import par
-

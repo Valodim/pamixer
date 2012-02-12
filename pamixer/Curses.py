@@ -1,6 +1,4 @@
 import curses 
-import time
-import sys
 import threading
 
 from screens.ScreenHelp import ScreenHelp

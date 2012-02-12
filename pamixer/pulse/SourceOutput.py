@@ -1,7 +1,4 @@
-import curses 
-
 from ParCur import par
-from ..classes.SubVolume import SubVolume
 
 class SourceOutput():
     def __init__(self, index, struct, props):

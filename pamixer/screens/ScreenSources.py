@@ -1,7 +1,5 @@
 import curses 
 
-from ..pulse.PulseAudio import PA_SINK_RUNNING, PA_SINK_SUSPENDED, PA_SINK_IDLE
-
 class ScreenSources():
 
     def __init__(self):

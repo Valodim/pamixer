@@ -1,7 +1,5 @@
 import curses 
 
-import sys
-
 class ScreenHelp():
     def __init__(self):
 

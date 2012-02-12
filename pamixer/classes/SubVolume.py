@@ -14,7 +14,7 @@ channel_names[PA_CHANNEL_POSITION_LFE] = 'sub';
 channel_names[PA_CHANNEL_POSITION_FRONT_LEFT_OF_CENTER] = 'front left';
 channel_names[PA_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER] = 'front right';
 channel_names[PA_CHANNEL_POSITION_SIDE_LEFT] = 'side left';
-channel_names[PA_CHANNEL_POSITION_SIDE_LEFT] = 'side right';
+channel_names[PA_CHANNEL_POSITION_SIDE_RIGHT] = 'side right';
 
 channel_picto = {
         PA_CHANNEL_POSITION_FRONT_LEFT: [ 'FL', 0, 0 ],
@@ -27,7 +27,7 @@ channel_picto = {
         PA_CHANNEL_POSITION_FRONT_LEFT_OF_CENTER: [ 'CL', 1, 1 ],
         PA_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER: [ 'CR', 1, 6 ],
         PA_CHANNEL_POSITION_SIDE_LEFT: [ 'L', 2, 0 ],
-        PA_CHANNEL_POSITION_SIDE_LEFT: [ 'R', 2, 7 ],
+        PA_CHANNEL_POSITION_SIDE_RIGHT: [ 'R', 2, 7 ],
 }
 
 class SubVolume(object):
