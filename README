@@ -4,6 +4,11 @@ This is a curses interface for pulseaudio.
 It is far from complete, but it's already very useful to conveniently
 move around sink inputs, and adjust volume levels individually.
 
+Branch info: This branch supports the equalizer module through dbus. It is not
+perfect yet, in particular the screen does not refresh when equalizer settings
+are externally modified. It's also a complete hack, use at your own risk yada
+yada :)
+
 What's working:
  - event handling
  - some info displayed
@@ -20,6 +25,9 @@ TODO (in no particular order):
  - equalizer profiles
  - equalizer by channel
  - equalizer event listening?
+ - proper error handling for equalizer
+ - use gobject loop?
+ - support -s for equalizer
  - finish script execution (is that even possible?)
  - cards screen (ie, for profile changing)
  - bugs, bugs
